@@ -302,7 +302,26 @@ btnNo.addEventListener('click', () => {
 });
 btnYes.addEventListener('click', () => {
   overlayMatch.classList.add('active');
+
+  // pequena espera para o overlay aparecer (ajuste 600ms se quiser mais/menos)
+  setTimeout(() => {
+    onMatchHappened({ name: 'Gabriel' }); // opcional: troque 'Gabriel' pelo nome dinâmico se tiver
+  }, 600);
 });
+
+// adiciona esta função (cole-a **depois** do código acima, ainda dentro do <script>)
+function onMatchHappened(matchUser) {
+  try {
+    localStorage.setItem('lastMatch', JSON.stringify({
+      name: matchUser && matchUser.name ? matchUser.name : null,
+      ts: Date.now()
+    }));
+  } catch (e) {
+    console.warn('localStorage indisponível:', e);
+  }
+  // redireciona para a sua Linha do Tempo (URL pública)
+  window.location.href = 'https://arcanus09.github.io/Linha-do-Tempo/';
+}
 
 /* player */
 const btnPlay = document.getElementById('btnPlay');
@@ -319,7 +338,9 @@ btnPause.addEventListener('click', () => {
   btnPause.style.display = "none";
   btnPlay.style.display = "flex";
 });
+  
 </script>
 </body>
 </html>
+
 
