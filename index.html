@@ -17,19 +17,21 @@
     }
     body {
       background: #000;
-      margin: 0;
-      font-family: 'Gotham Rounded', sans-serif;
-      /* forçar que o conteúdo não role por baixo dos botões fixos */
-      overflow: hidden;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Gotham Rounded', sans-serif;
     }
-    .app {
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
-      overflow: hidden;
-      position: relative;
-      background: #000;
-    }
+.app {
+  width: 100vw;
+  height: 100dvh; /* usa altura dinâmica real no celular */
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: #000;
+}
 
     /* Telas */
     .screen {
@@ -79,27 +81,44 @@
       overflow: hidden;
     }
 
-    .profile-screen .photo {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      position: absolute;
-      top: 0; left: 0;
-      opacity: 0;
-      transition: opacity 0.5s ease;
-      z-index: 1;
-    }
-    .profile-screen .photo.active {
-      opacity: 1;
-      z-index: 5;
-    }
+.profile-screen .photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 20px;
+  opacity: 0;
+  transform: translateX(0) rotate(0);
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  z-index: 1;
+}
 
+.profile-screen .photo.active {
+  opacity: 1;
+  z-index: 5;
+}
+
+.profile-screen .photo.exit-left {
+  transform: translateX(-120%) rotate(-15deg);
+  opacity: 0;
+}
+
+.profile-screen .photo.exit-right {
+  transform: translateX(120%) rotate(15deg);
+  opacity: 0;
+}
+
+.profile-screen .photo.enter-next,
+.profile-screen .photo.enter-prev {
+  opacity: 1;
+}
     /* Player (botões ▶️ / ⏸️) */
     .music-player {
       position: relative;
-      bottom: -162px;
-      left: -7.8%;
-      transform: translateX(-50%);
+      bottom: -145px;
+      left: -28%;
       display: flex;
       z-index: 10;
     }
@@ -124,8 +143,8 @@
     /* Bolinhas (indicadores de foto) */
     .profile-screen .dots {
       position: absolute;
-      bottom: 265px;
-      right: -4%;
+      bottom: 238px;
+      right: -10%;
       width: 100%;
       text-align: center;
       z-index: 10;
@@ -198,19 +217,16 @@
       pointer-events: all;
     }
     .overlay h2 {
-      margin: 0 12px;
       font-size: 20px;
       line-height: 1.3;
-      word-wrap: break-word;
-      max-width: 20%;
+      max-width: 50%;
     }
     .overlay p {
-      margin-top: 8px;
       font-size: 20px;
       color: #ddd;
-      max-width: 20%;
+      max-width: 50%;
     }
-
+ 
     /* Responsivo (celular) */
     @media (max-width: 768px) {
       .profile-screen .photo {
@@ -218,8 +234,8 @@
       }
 
       .music-player {
-        bottom: -205px;
-        left: -32%;
+        bottom: -196px;
+        left: -35%;
       }
       .btn-player {
         width: 40px;
@@ -236,7 +252,7 @@
       }
 
       .profile-screen .dots {
-        bottom: 338px;
+        bottom: 314px;
         right: -20%;
       }
 
@@ -247,10 +263,82 @@
       .overlay p {
         font-size: 20px;
       }
-    }
+}
+ /* Tela de introdução (Splash) */
+.app-intro {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, #111 0%, #000 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeOut 1s ease 2.5s forwards; /* some após 2.5s */
+}
+
+.intro-content {
+  text-align: center;
+  animation: zoomIn 1.5s ease;
+}
+
+.intro-logo {
+  width: 120px;
+  height: auto;
+  animation: float 2s ease-in-out infinite alternate;
+}
+
+.intro-text {
+  color: #fff;
+  font-family: 'Gotham Rounded', cursive;
+  font-size: 0.8rem;
+  margin-top: 15px;
+  opacity: 0.8;
+}
+
+/* Efeitos */
+@keyframes zoomIn {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
+@keyframes float {
+  from { transform: translateY(0); }
+  to { transform: translateY(-10px); }
+}
+@media (min-width: 769px) {
+  .app {
+    width: 375px;       /* largura típica de celular */
+    height: 667px;      /* altura típica de celular */
+    max-height: 90vh;   /* evita que ultrapasse a altura da tela */
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    overflow: hidden;
+    background: #000;
+  }
+  .profile-screen .photo {
+    object-fit: contain; /* mantém a foto completa */
+}
+  }
+  /* ---------- fallback ... ---------- */
+  #force-reset-transforms { display: none; }
   </style>
 </head>
 <body>
+<div class="app-intro">
+  <div class="intro-content">
+    <img src="https://static.vecteezy.com/system/resources/previews/023/986/672/non_2x/tinder-app-logo-tinder-app-logo-transparent-tinder-app-icon-transparent-free-free-png.png" alt="Logo" class="intro-logo">
+    <p class="intro-text">Carregando...</p>
+  </div>
+</div>
   <div class="app">
     <!-- Tela inicial -->
     <div class="screen start-screen active">
@@ -323,21 +411,72 @@
       });
     });
 
-    /* Trocar fotos com fade */
-    dots.forEach(dot => {
-      dot.addEventListener('click', () => {
-        const index = Number(dot.dataset.index);
-        showPhoto(index);
-      });
-    });
-    function showPhoto(index) {
-      if (index === currentIndex) return;
-      photos[currentIndex].classList.remove('active');
-      dots[currentIndex].classList.remove('active');
-      photos[index].classList.add('active');
-      dots[index].classList.add('active');
-      currentIndex = index;
+let startX = 0;
+let isDragging = false;
+
+profileScreen.addEventListener("touchstart", (e) => {
+  startX = e.touches[0].clientX;
+  isDragging = true;
+});
+
+profileScreen.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  const deltaX = e.touches[0].clientX - startX;
+  const activePhoto = photos[currentIndex];
+  activePhoto.style.transform = `translateX(${deltaX}px) rotate(${deltaX / 20}deg)`;
+});
+
+profileScreen.addEventListener("touchend", (e) => {
+  if (!isDragging) return;
+  isDragging = false;
+
+  const deltaX = e.changedTouches[0].clientX - startX;
+  const activePhoto = photos[currentIndex];
+
+  if (deltaX > 100) {
+    activePhoto.classList.add("exit-right");
+    goToNextPhoto();
+  } else if (deltaX < -100) {
+    activePhoto.classList.add("exit-left");
+    goToNextPhoto();
+  } else {
+    activePhoto.style.transform = "";
+  }
+});
+
+/* Troca controlada (usada no swipe e nas bolinhas) */
+function goToNextPhoto(index = null) {
+  const oldPhoto = photos[currentIndex];
+  dots[currentIndex].classList.remove("active");
+
+  if (index !== null) {
+    currentIndex = index;
+  } else {
+    currentIndex = (currentIndex + 1) % photos.length;
+  }
+
+  const newPhoto = photos[currentIndex];
+  newPhoto.classList.add("active", "enter-next");
+  dots[currentIndex].classList.add("active");
+
+  setTimeout(() => {
+    oldPhoto.className = "photo";
+    newPhoto.className = "photo active";
+  }, 400);
+}
+
+/* Bolinhas continuam funcionando */
+dots.forEach(dot => {
+  dot.addEventListener("click", () => {
+    const index = Number(dot.dataset.index);
+    if (index !== currentIndex) {
+      photos[currentIndex].classList.add(
+        index > currentIndex ? "exit-left" : "exit-right"
+      );
+      goToNextPhoto(index);
     }
+  });
+});
 
     /* X e ❤ */
     btnNo.addEventListener('click', () => {
