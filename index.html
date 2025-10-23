@@ -406,7 +406,6 @@ window.addEventListener('load', () => {
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
 
-  // função que tenta tocar a música
   function startMusic() {
     audio.play().then(() => {
       btnPlay.style.display = 'none';
@@ -414,8 +413,32 @@ window.addEventListener('load', () => {
     }).catch(() => console.log('Autoplay bloqueado até interação.'));
   }
 
-  // tenta tocar automaticamente (funciona no PC)
-  startMusic();
+  // aguarda o fim do carregamento (20s) e depois tenta tocar
+  setTimeout(startMusic, 20000);
+
+  document.body.addEventListener('click', startMusic, { once: true });
+
+  btnPlay.addEventListener('click', () => {
+    audio.play();
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'flex';
+  });
+
+  btnPause.addEventListener('click', () => {
+    audio.pause();
+    btnPause.style.display = 'none';
+    btnPlay.style.display = 'flex';
+  });
+
+  audio.onplay = () => {
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'flex';
+  };
+  audio.onpause = () => {
+    btnPause.style.display = 'none';
+    btnPlay.style.display = 'flex';
+  };
+});
 
   // tenta de novo assim que o usuário tocar na tela (necessário pro celular)
   document.body.addEventListener('click', startMusic, { once: true });
