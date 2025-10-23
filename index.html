@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Tinder Immersion Pack — Fran & Gabriel</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
 /* Tela de carregamento */
 #loadingScreen {
@@ -133,10 +134,33 @@ main {
       border-top: 1px solid rgba(255,255,255,0.02);
     }
     .bio { color: var(--muted); font-size: 14px; }
-    .controls { display: flex; gap: 8px; }
-    .btn { padding: 8px 14px; border-radius: 999px; border: none; cursor: pointer; }
-    .btn.x { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: #fff; }
-    .btn.heart { background: linear-gradient(90deg,#ff6a85,#ff4d6d); color: #fff; }
+ .controls {
+  display: flex;
+  justify-content: space-between; /* separa os botões */
+  padding: 12px 24px;
+}
+
+.btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 28px;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.15);
+}
+
+.btn.x { background: #1e1e1e; color: #ff6a85; }
+.btn.reverse { background: #1e1e1e; color: #fdd835; }
+.btn.star { background: #1e1e1e; color: #5dc1ff; }
+.btn.heart { background: #1e1e1e; color: #ff4d6d; }
 
     /* Bolinhas de navegação */
     .photo-dots {
@@ -320,11 +344,12 @@ main {
   </div>
   <audio id="audio" src="https://www.dropbox.com/scl/fi/01b8qqoi7336k32ydltv0/SpotiDown.App-V-rias-Queixas-Gilsons.mp3?rlkey=zubr4q2dkh87f2vxryplosya1&st=fqmlaxf6&raw=1"></audio>
 </div>
-        <div class="controls">
-          <button class="btn x" id="btnX">✖</button>
-          <button class="btn heart" id="btnHeart">❤︎</button>
-        </div>
-      </div>
+<div class="controls">
+  <button class="btn reverse" id="btnReverse"><i class="fas fa-undo"></i></button>
+  <button class="btn x" id="btnX"><i class="fas fa-times"></i></button>
+  <button class="btn star" id="btnStar"><i class="fas fa-star"></i></button>
+  <button class="btn heart" id="btnHeart"><i class="fas fa-heart"></i></button>
+</div>
       <!-- Modal Match -->
       <div class="matchOverlay" id="matchOverlay">
         <div class="matchCard">
@@ -345,10 +370,6 @@ main {
 
   <!-- Scripts -->
   <script>
-    const overlay = document.getElementById('matchOverlay');
-    const btnHeart = document.getElementById('btnHeart');
-    const btnX = document.getElementById('btnX');
-    const closeMatchBtn = document.getElementById('closeMatch');
     const photos = [
       "https://i.imgur.com/XWo2fK7.jpeg",
       "https://i.imgur.com/oKl6OPF.jpeg",
@@ -375,11 +396,6 @@ main {
       dots.forEach((d, i) => d.classList.toggle('active', i === currentPhoto));
     }
 
-    // Botões
-    if(btnHeart){ btnHeart.addEventListener('click', ()=> overlay.classList.add('show')); }
-    if(btnX){ btnX.addEventListener('click', ()=> flashText('Você pulou uma oportunidade... 😢')); }
-    if(closeMatchBtn){ closeMatchBtn.addEventListener('click', ()=> overlay.classList.remove('show')); }
-
     function flashText(t){
       const el = document.createElement('div');
       el.textContent = t;
@@ -396,15 +412,15 @@ main {
       setTimeout(()=>el.remove(),1800);
     }
   // Mantém a tela de carregamento por 20 segundos
-  window.addEventListener('load', () => {
-    setTimeout(() => {
-      document.getElementById('loadingScreen').classList.add('hide');
-    }, 20000); // 20000 ms = 20 segundos
-  });
 window.addEventListener('load', () => {
   const audio = document.getElementById('audio');
   const btnPlay = document.getElementById('btnPlay');
   const btnPause = document.getElementById('btnPause');
+  const loadingScreen = document.getElementById('loadingScreen');
+
+  // Esconde a tela de carregamento
+  loadingScreen.classList.add('hide');
+  setTimeout(() => { loadingScreen.remove(); }, 2000);
 
   function startMusic() {
     audio.play().then(() => {
@@ -413,9 +429,7 @@ window.addEventListener('load', () => {
     }).catch(() => console.log('Autoplay bloqueado até interação.'));
   }
 
-  // aguarda o fim do carregamento (20s) e depois tenta tocar
-  setTimeout(startMusic, 20000);
-
+  setTimeout(startMusic, 2000);
   document.body.addEventListener('click', startMusic, { once: true });
 
   btnPlay.addEventListener('click', () => {
@@ -430,14 +444,52 @@ window.addEventListener('load', () => {
     btnPlay.style.display = 'flex';
   });
 
-  audio.onplay = () => {
-    btnPlay.style.display = 'none';
-    btnPause.style.display = 'flex';
-  };
-  audio.onpause = () => {
-    btnPause.style.display = 'none';
-    btnPlay.style.display = 'flex';
-  };
+  audio.onplay = () => { btnPlay.style.display = 'none'; btnPause.style.display = 'flex'; };
+  audio.onpause = () => { btnPause.style.display = 'none'; btnPlay.style.display = 'flex'; };
+});
+const btnX = document.getElementById('btnX');
+const btnStar = document.getElementById('btnStar');
+const btnHeart = document.getElementById('btnHeart');
+const overlay = document.getElementById('matchOverlay');
+
+function flashText(msg) {
+  const el = document.createElement('div');
+  el.textContent = msg;
+  el.style.position = 'fixed';
+  el.style.left = '50%';
+  el.style.top = '18%';
+  el.style.transform = 'translateX(-50%)';
+  el.style.background = 'linear-gradient(90deg,#ff6a85,#ff4d6d)';
+  el.style.padding = '10px 14px';
+  el.style.borderRadius = '999px';
+  el.style.boxShadow = '0 6px 18px rgba(0,0,0,0.5)';
+  el.style.color = '#fff';
+  el.style.fontWeight = '700';
+  el.style.zIndex = 9999;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1800);
+}
+
+// X → rejeitar
+btnX.addEventListener('click', () => {
+  flashText("Você pulou uma oportunidade... 😢");
+});
+
+// Estrela → super like
+btnStar.addEventListener('click', () => {
+  flashText("Uau! Super Like ativado! ✨");
+});
+
+// Coração → like
+btnHeart.addEventListener('click', () => {
+  overlay.classList.add('show'); // abre modal de match
+  flashText("❤ Curtiu! É um match! 💫");
+});
+
+// Reverse → voltar
+const btnReverse = document.getElementById('btnReverse');
+btnReverse.addEventListener('click', () => {
+  flashText("Resposta errada, pense mais um pouquinho! 🔄");
 });
   </script>
 </body>
