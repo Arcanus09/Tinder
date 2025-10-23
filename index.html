@@ -402,9 +402,23 @@ main {
     }, 2000); // 20000 ms = 20 segundos
   });
 window.addEventListener('load', () => {
-  const audio = document.getElementById('audio');
-  const btnPlay = document.getElementById('btnPlay');
-  const btnPause = document.getElementById('btnPause');
+ const audio = document.getElementById('audio');
+const btnPlay = document.getElementById('btnPlay');
+const btnPause = document.getElementById('btnPause');
+
+// função que tenta tocar a música
+function startMusic() {
+  audio.play().then(() => {
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'flex';
+  }).catch(err => console.log('Autoplay bloqueado até interação.'));
+}
+
+// tenta tocar no PC
+window.addEventListener('load', startMusic);
+
+// e também tenta de novo no primeiro toque do usuário
+document.body.addEventListener('click', startMusic, { once: true });
 
   // Tocar música automaticamente
   audio.play().catch(() => console.log('Autoplay bloqueado pelo navegador.'));
