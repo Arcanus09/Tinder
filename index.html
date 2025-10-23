@@ -399,7 +399,7 @@ main {
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loadingScreen').classList.add('hide');
-    }, 2000); // 20000 ms = 20 segundos
+    }, 20000); // 20000 ms = 20 segundos
   });
 window.addEventListener('load', () => {
   const audio = document.getElementById('audio');
@@ -430,33 +430,6 @@ window.addEventListener('load', () => {
     btnPlay.style.display = 'flex';
   });
 
-  audio.onplay = () => {
-    btnPlay.style.display = 'none';
-    btnPause.style.display = 'flex';
-  };
-  audio.onpause = () => {
-    btnPause.style.display = 'none';
-    btnPlay.style.display = 'flex';
-  };
-});
-
-  // tenta de novo assim que o usuário tocar na tela (necessário pro celular)
-  document.body.addEventListener('click', startMusic, { once: true });
-
-  // controles manuais
-  btnPlay.addEventListener('click', () => {
-    audio.play();
-    btnPlay.style.display = 'none';
-    btnPause.style.display = 'flex';
-  });
-
-  btnPause.addEventListener('click', () => {
-    audio.pause();
-    btnPause.style.display = 'none';
-    btnPlay.style.display = 'flex';
-  });
-
-  // sincroniza estado dos botões
   audio.onplay = () => {
     btnPlay.style.display = 'none';
     btnPause.style.display = 'flex';
