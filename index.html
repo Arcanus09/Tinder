@@ -184,7 +184,94 @@ main {
       .card { max-width: 90vw; }
       .card .photo { aspect-ratio: 2 / 3; }
     }
+.music-profile {
+  position: relative;
+  width: 100%;
+  max-width: 100px; /* define largura menor */
+  margin: 12px 0;   /* espaço entre descrição e capa */
+  white-space: nowrap; /* evita quebra de linha */
 
+}
+.album-container {
+  position: relative;
+  width: 100px; /* largura igual à altura da capa */
+  height: 100px; /* capa menor */
+  flex-shrink: 0; /* evita encolher */
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.album-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* mantém proporção da imagem */
+  display: block;
+  border-radius: 12px;
+}
+
+.album-text-container {
+  display: flex;
+  align-items: center; /* centraliza verticalmente */
+  gap: 12px; /* espaço entre capa e texto */
+}
+
+.album-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* centraliza verticalmente */
+}
+
+.album-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.album-artist {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.spotify-link {
+  font-size: 12px;
+  color: #1DB954; /* verde Spotify */
+  text-decoration: none;
+  font-weight: 700; /* muda para negrito */
+}
+
+.spotify-link:hover {
+  text-decoration: underline;
+}
+
+/* Botões de play/pause sobre a capa continuam do mesmo jeito */
+.btn-player {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px; /* ajustado ao tamanho menor */
+  height: 80px;
+  border: none;
+  background: transparent; /* sem cor de fundo */
+  border: none;            /* sem borda */
+  border-radius: 0;        /* opcional: remove o círculo */
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.btn-player img {
+  width: 60%;
+  height: 60%;
+  object-fit: contain;
+}
+
+#btnPause {
+  display: none; /* inicia oculto */
+}
   </style>
 </head>
 <body>
@@ -205,20 +292,39 @@ main {
     <div class="card" id="tinderCard">
       <div class="photo" id="cardPhoto" style="background-image:url('https://i.imgur.com/XWo2fK7.jpeg')"></div>
 
-      <div class="meta">
-        <div>
-          <div style="display:flex;align-items:center;gap:8px;font-weight:700">
-            Fran, 26
-            <div class="photo-dots" id="photoDots"></div>
-          </div>
-          <div class="bio">Gamer, apaixonada por 8-bit e cafés quentinhos. Procura jogador pra vida.</div>
-        </div>
+<div class="meta">
+  <div>
+    <div style="display:flex;align-items:center;gap:8px;font-weight:700">
+      Fran, 26
+      <div class="photo-dots" id="photoDots"></div>
+    </div>
+    <div class="bio">Gamer, apaixonada por 8-bit e cafés quentinhos. Procura jogador pra vida.</div>
+
+    <!-- Música: mover para cá, logo abaixo da bio -->
+   <div class="music-profile">
+  <div class="album-text-container">
+    <div class="album-container">
+      <img src="https://i.imgur.com/2ObStUN.jpeg" alt="Capa do Álbum" class="album-cover">
+      <button class="btn-player" id="btnPlay">
+        <img src="https://i.imgur.com/ac2Y8S0.png" alt="Play">
+      </button>
+      <button class="btn-player" id="btnPause">
+        <img src="https://i.imgur.com/cMwx0eN.png" alt="Pause">
+      </button>
+    </div>
+    <div class="album-text">
+      <div class="album-title">Várias Queixas</div>
+      <div class="album-artist">Gilsons</div>
+      <a href="https://open.spotify.com/intl-pt/track/5HFvMPiNjclAq8DbEAPWMw?si=593335ab41624133" target="_blank" class="spotify-link">Play on Spotify</a>
+    </div>
+  </div>
+  <audio id="audio" src="https://www.dropbox.com/scl/fi/01b8qqoi7336k32ydltv0/SpotiDown.App-V-rias-Queixas-Gilsons.mp3?rlkey=zubr4q2dkh87f2vxryplosya1&st=fqmlaxf6&raw=1"></audio>
+</div>
         <div class="controls">
           <button class="btn x" id="btnX">✖</button>
           <button class="btn heart" id="btnHeart">❤︎</button>
         </div>
       </div>
-
       <!-- Modal Match -->
       <div class="matchOverlay" id="matchOverlay">
         <div class="matchCard">
@@ -293,8 +399,35 @@ main {
   window.addEventListener('load', () => {
     setTimeout(() => {
       document.getElementById('loadingScreen').classList.add('hide');
-    }, 20000); // 20000 ms = 20 segundos
+    }, 2000); // 20000 ms = 20 segundos
   });
+window.addEventListener('load', () => {
+  const audio = document.getElementById('audio');
+  const btnPlay = document.getElementById('btnPlay');
+  const btnPause = document.getElementById('btnPause');
+
+  // Tocar música automaticamente
+  audio.play().catch(() => console.log('Autoplay bloqueado pelo navegador.'));
+
+  // Ajusta botões
+  btnPlay.addEventListener('click', () => {
+    audio.play();
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'flex';
+  });
+
+  btnPause.addEventListener('click', () => {
+    audio.pause();
+    btnPause.style.display = 'none';
+    btnPlay.style.display = 'flex';
+  });
+
+  // Se autoplay funcionar, mostrar só o pause
+  audio.onplay = () => {
+    btnPlay.style.display = 'none';
+    btnPause.style.display = 'flex';
+  };
+});
   </script>
 </body>
 </html>
