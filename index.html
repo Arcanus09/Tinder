@@ -1,526 +1,300 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#000000">
-  <title>Tinder</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Tinder Immersion Pack — Fran & Gabriel</title>
   <style>
-    @font-face {
-      font-family: 'Gotham Rounded';
-      src: url('https://raw.githubusercontent.com/Arcanus09/Tinder/main/gothamrnd_book.otf') format('opentype');
-      font-weight: normal;
-      font-style: normal;
-    }
-    body {
-      background: #000;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  font-family: 'Gotham Rounded', sans-serif;
-    }
-.app {
-  width: 100vw;
-  height: 100dvh; /* usa altura dinâmica real no celular */
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  background: #000;
-}
-
-    /* Telas */
-    .screen {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0; left: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-    }
-    .screen.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-
-    /* Tela inicial */
-    .start-screen img {
-      max-width: 100%;
-      max-height: 100%;
-      width: auto;
-      height: auto;
-      border-radius: 20px;
-    }
-    .start-screen button {
-      position: absolute;
-      bottom: 15%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 150px;
-      height: 50px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    /* Tela de perfil */
-    .profile-screen {
-      flex-direction: column;
-      position: relative;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-    }
-
-.profile-screen .photo {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  border-radius: 20px;
-  opacity: 0;
-  transform: translateX(0) rotate(0);
-  transition: transform 0.4s ease, opacity 0.4s ease;
-  z-index: 1;
-}
-
-.profile-screen .photo.active {
-  opacity: 1;
-  z-index: 5;
-}
-
-.profile-screen .photo.exit-left {
-  transform: translateX(-120%) rotate(-15deg);
-  opacity: 0;
-}
-
-.profile-screen .photo.exit-right {
-  transform: translateX(120%) rotate(15deg);
-  opacity: 0;
-}
-
-.profile-screen .photo.enter-next,
-.profile-screen .photo.enter-prev {
-  opacity: 1;
-}
-    /* Player (botões ▶️ / ⏸️) */
-    .music-player {
-      position: relative;
-      bottom: -145px;
-      left: -28%;
-      display: flex;
-      z-index: 10;
-    }
-    .btn-player {
-      background: none;
-      border: none;
-      cursor: pointer;
-      width: 35px;
-      height: 35px;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .btn-player img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-    #btnPlay { display: none; }
-
-    /* Bolinhas (indicadores de foto) */
-    .profile-screen .dots {
-      position: absolute;
-      bottom: 238px;
-      right: -10%;
-      width: 100%;
-      text-align: center;
-      z-index: 10;
-    }
-    .profile-screen .dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      background: rgba(255,255,255,0.5);
-      margin: 0 5px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
-    .profile-screen .dot.active {
-      background: #ff3860;
-    }
-
-    /* Botões ❌ e ❤️ fixos */
-    .profile-screen .buttons {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 50px;
-      z-index: 1000;
-    }
-    .profile-screen .btn {
-      width: 70px;
-      height: 70px;
-      border-radius: 50%;
-      background: none;
-      border: none;
-      padding: 0;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-    .profile-screen .btn img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    /* Overlays */
-    .overlay {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.75);
-      color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      text-align: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-      border-radius: 20px;
-      z-index: 2000;
-    }
-    .overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    .overlay h2 {
-      font-size: 20px;
-      line-height: 1.3;
-      max-width: 50%;
-    }
-    .overlay p {
-      font-size: 20px;
-      color: #ddd;
-      max-width: 50%;
-    }
- 
-    /* Responsivo (celular) */
-    @media (max-width: 768px) {
-      .profile-screen .photo {
-        object-fit: cover;
-      }
-
-      .music-player {
-        bottom: -196px;
-        left: -35%;
-      }
-      .btn-player {
-        width: 40px;
-        height: 40px;
-      }
-
-      .profile-screen .buttons {
-        bottom: 40px;
-        gap: 150px;
-      }
-      .profile-screen .btn {
-        width: 60px;
-        height: 60px;
-      }
-
-      .profile-screen .dots {
-        bottom: 314px;
-        right: -20%;
-      }
-
-      .overlay h2 {
-        font-size: 20px;
-        max-width: 90%;
-      }
-      .overlay p {
-        font-size: 20px;
-      }
-}
- /* Tela de introdução (Splash) */
-.app-intro {
+/* Tela de carregamento */
+#loadingScreen {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle, #111 0%, #000 100%);
+  background: var(--bg);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   flex-direction: column;
+  text-align: center; /* garante que tudo fique centralizado */
   z-index: 9999;
-  animation: fadeOut 1s ease 20s forwards; /* some após 20s */
+  transition: opacity 1s ease, visibility 1s ease;
 }
 
-.intro-content {
-  text-align: center;
-  animation: zoomIn 1.5s ease;
+#loadingScreen.hide {
+  opacity: 0;
+  visibility: hidden;
 }
 
-.intro-logo {
-  width: 120px;
+.loading-logo {
+  max-width: 120px;
   height: auto;
   animation: float 2s ease-in-out infinite alternate;
 }
 
-.intro-text {
+.loading-text {
   color: #fff;
-  font-family: 'Gotham Rounded', cursive;
-  font-size: 0.8rem;
-  margin-top: 15px;
-  opacity: 0.8;
-}
-
-/* Efeitos */
-@keyframes zoomIn {
-  from { transform: scale(0.5); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-@keyframes fadeOut {
-  to { opacity: 0; visibility: hidden; }
+  font-family: 'GothamRnd', sans-serif;
+  font-size: 1rem;
+  margin-top: 16px;
+  opacity: 0.85;
+  animation: blink 1.6s infinite;
+  text-align: center; /* reforça o alinhamento */
 }
 
 @keyframes float {
   from { transform: translateY(0); }
-  to { transform: translateY(-10px); }
+  to { transform: translateY(-8px); }
 }
-@media (min-width: 769px) {
-  .app {
-    width: 375px;       /* largura típica de celular */
-    height: 667px;      /* altura típica de celular */
-    max-height: 90vh;   /* evita que ultrapasse a altura da tela */
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 20px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
-    overflow: hidden;
-    background: #000;
-  }
-  .profile-screen .photo {
-    object-fit: contain; /* mantém a foto completa */
+
+@keyframes blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
 }
-  }
-  /* ---------- fallback ... ---------- */
-  #force-reset-transforms { display: none; }
+@font-face {
+  font-family: 'GothamRnd';
+  src: url('fonts/gothamrnd_book.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+    :root {
+      --bg: #0f1724;        /* fundo sólido */
+      --card: #0b1220;
+      --accent: #ff4d6d;
+      --muted: #94a3b8;
+      --glass: rgba(255,255,255,0.04);
+      --max-width: 720px;
+    }
+
+    * { box-sizing: border-box; }
+    html,
+body {
+  font-family: 'GothamRnd', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  color: #e6eef8;
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+
+    /* Header */
+header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;          /* sem espaço interno */
+  margin: 0;           /* sem margem externa */
+  background: var(--bg);
+  border: none;        /* remove linha inferior */
+}
+
+header img {
+  display: block;
+  margin: 0;           /* remove espaço em cima e embaixo */
+  max-width: 220px;
+  height: auto;
+}
+
+    /* Layout */
+main {
+  max-width: var(--max-width);
+  margin: 0 auto;      /* remove espaço entre logo e card */
+  padding-top: 4px;    /* opcional: distância mínima entre logo e card */
+  display: flex;
+  justify-content: center;
+}
+
+    /* Card */
+    .card {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      position: relative;
+      border: 1px solid rgba(255,255,255,0.03);
+    }
+
+    /* Foto retrato */
+    .card .photo {
+      width: 100%;
+      aspect-ratio: 3 / 4; 
+      background-size: cover;
+      background-position: center;
+      border-radius: 12px 12px 0 0;
+    }
+
+    /* Meta info */
+    .card .meta {
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255,255,255,0.02);
+    }
+    .bio { color: var(--muted); font-size: 14px; }
+    .controls { display: flex; gap: 8px; }
+    .btn { padding: 8px 14px; border-radius: 999px; border: none; cursor: pointer; }
+    .btn.x { background: transparent; border: 1px solid rgba(255,255,255,0.06); color: #fff; }
+    .btn.heart { background: linear-gradient(90deg,#ff6a85,#ff4d6d); color: #fff; }
+
+    /* Bolinhas de navegação */
+    .photo-dots {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .photo-dots .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .photo-dots .dot.active {
+      background: var(--accent);
+      transform: scale(1.2);
+    }
+
+    /* Modal Match */
+    .matchOverlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px);
+      opacity: 0; pointer-events: none;
+      transition: all .36s;
+    }
+    .matchOverlay.show { opacity: 1; pointer-events: auto; }
+    .matchCard {
+      background: var(--glass);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+    }
+    .matchCard h2 { margin: 0 0 6px; font-size: 20px; }
+    .matchRow { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 12px 0; }
+    .matchRow img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; border: 2px solid #fff; }
+
+    /* Responsivo */
+    @media(max-width:480px){
+      .card { max-width: 90vw; }
+      .card .photo { aspect-ratio: 2 / 3; }
+    }
+
   </style>
 </head>
 <body>
-<div class="app-intro">
-  <div class="intro-content">
-    <img src="https://static.vecteezy.com/system/resources/previews/023/986/672/non_2x/tinder-app-logo-tinder-app-logo-transparent-tinder-app-icon-transparent-free-free-png.png" alt="Logo" class="intro-logo">
-    <p class="intro-text">Carregando...</p>
+<!-- Tela de carregamento -->
+<div id="loadingScreen">
+  <div class="loading-content">
+    <img src="https://static.vecteezy.com/system/resources/previews/023/986/672/non_2x/tinder-app-logo-tinder-app-logo-transparent-tinder-app-icon-transparent-free-free-png.png" alt="Logo Tinder" class="loading-logo">
+    <p class="loading-text">Carregando...</p>
   </div>
 </div>
-  <div class="app">
-    <!-- Tela inicial -->
-    <div class="screen start-screen active">
-      <img src="https://i.imgur.com/ncdwdtb.jpeg" class="start-img">
-      <button id="btnStart"></button>
-    </div>
+  <!-- Header -->
+  <header>
+    <img src="https://i.imgur.com/kfHi98d.png" alt="Logo Tinder">
+  </header>
 
-    <!-- Tela de perfil -->
-  <div class="screen profile-screen">
-    <img src="https://i.imgur.com/4QPGVSl.jpeg" class="photo active" alt="foto1">
-    <img src="https://i.imgur.com/cg14nYp.jpeg" class="photo" alt="foto2">
-    <img src="https://i.imgur.com/jTE31jS.jpeg" class="photo" alt="foto3">
+  <!-- Main -->
+  <main>
+    <div class="card" id="tinderCard">
+      <div class="photo" id="cardPhoto" style="background-image:url('https://i.imgur.com/XWo2fK7.jpeg')"></div>
 
-      <div class="music-player">
-        <button id="btnPlay" class="btn-player">
-          <img src="https://i.imgur.com/ac2Y8S0.png" alt="Play">
-        </button>
-        <button id="btnPause" class="btn-player">
-          <img src="https://i.imgur.com/cMwx0eN.png" alt="Pause">
-        </button>
-        <audio id="audio" src="https://www.dropbox.com/scl/fi/01b8qqoi7336k32ydltv0/SpotiDown.App-V-rias-Queixas-Gilsons.mp3?rlkey=zubr4q2dkh87f2vxryplosya1&st=fqmlaxf6&raw=1"></audio>
+      <div class="meta">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;font-weight:700">
+            Fran, 26
+            <div class="photo-dots" id="photoDots"></div>
+          </div>
+          <div class="bio">Gamer, apaixonada por 8-bit e cafés quentinhos. Procura jogador pra vida.</div>
+        </div>
+        <div class="controls">
+          <button class="btn x" id="btnX">✖</button>
+          <button class="btn heart" id="btnHeart">❤︎</button>
+        </div>
       </div>
 
-      <div class="dots">
-        <span class="dot active" data-index="0"></span>
-        <span class="dot" data-index="1"></span>
-        <span class="dot" data-index="2"></span>
-      </div>
-
-      <div class="buttons">
-        <button id="btnNo" class="btn no">
-          <img src="https://i.imgur.com/VsRMbeU.png" alt="X">
-        </button>
-        <button id="btnYes" class="btn yes">
-          <img src="https://i.imgur.com/86tjOQb.png" alt="Coração">
-        </button>
-      </div>
-
-      <div class="overlay lose">
-        <h2>Clicando aqui você estaria perdendo a maior chance da sua vida 😜</h2>
-      </div>
-      <div class="overlay match">
-        <h2>✨ It's a Match! ✨</h2>
-        <p>Vocês se curtiram! Ótima escolha 💕</p>
-        <p>Vamos voltar no tempo?</p>
-        <p>Prepare-se para grandes aventuras.💕</p>
+      <!-- Modal Match -->
+      <div class="matchOverlay" id="matchOverlay">
+        <div class="matchCard">
+          <h2>💫 It's a match! 💫</h2>
+          <div class="matchRow">
+            <img src="https://via.placeholder.com/150/FFB6C1/000000?text=Fran" alt="Fran">
+            <img src="https://via.placeholder.com/150/87CEFA/000000?text=Gabriel" alt="Gabriel">
+          </div>
+          <p style="color:var(--muted)">"Desde o primeiro match, eu já sabia."</p>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
+            <button class="btn heart" id="openChat">Ver mensagens</button>
+            <button class="btn x" id="closeMatch">Fechar</button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 
+  <!-- Scripts -->
   <script>
-    const btnStart = document.getElementById('btnStart');
-    const startScreen = document.querySelector('.start-screen');
-    const profileScreen = document.querySelector('.profile-screen');
-    const photos = document.querySelectorAll('.photo');
-    const dots = document.querySelectorAll('.dot');
-    const btnNo = document.getElementById('btnNo');
-    const btnYes = document.getElementById('btnYes');
-    const overlayLose = document.querySelector('.overlay.lose');
-    const overlayMatch = document.querySelector('.overlay.match');
+    const overlay = document.getElementById('matchOverlay');
+    const btnHeart = document.getElementById('btnHeart');
+    const btnX = document.getElementById('btnX');
+    const closeMatchBtn = document.getElementById('closeMatch');
+    const photos = [
+      "https://i.imgur.com/XWo2fK7.jpeg",
+      "https://i.imgur.com/oKl6OPF.jpeg",
+      "https://i.imgur.com/vHgdGsW.jpeg"
+    ];
+    let currentPhoto = 0;
+    const cardPhoto = document.getElementById('cardPhoto');
+    const dotsContainer = document.getElementById('photoDots');
 
-    let currentIndex = 0;
-
-    /* Entrar na tela de perfil */
-    btnStart.addEventListener('click', () => {
-      startScreen.classList.remove('active');
-      profileScreen.classList.add('active');
-
-      const audio = document.getElementById('audio');
-      audio.play().catch(() => {
-        console.log('Autoplay pode estar bloqueado.');
+    // Bolinhas
+    photos.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'dot' + (i === 0 ? ' active' : '');
+      dot.addEventListener('click', () => {
+        currentPhoto = i;
+        updatePhoto();
       });
+      dotsContainer.appendChild(dot);
     });
 
-let startX = 0;
-let isDragging = false;
-
-profileScreen.addEventListener("touchstart", (e) => {
-  startX = e.touches[0].clientX;
-  isDragging = true;
-});
-
-profileScreen.addEventListener("touchmove", (e) => {
-  if (!isDragging) return;
-  const deltaX = e.touches[0].clientX - startX;
-  const activePhoto = photos[currentIndex];
-  activePhoto.style.transform = `translateX(${deltaX}px) rotate(${deltaX / 20}deg)`;
-});
-
-profileScreen.addEventListener("touchend", (e) => {
-  if (!isDragging) return;
-  isDragging = false;
-
-  const deltaX = e.changedTouches[0].clientX - startX;
-  const activePhoto = photos[currentIndex];
-
-  if (deltaX > 100) {
-    activePhoto.classList.add("exit-right");
-    goToNextPhoto();
-  } else if (deltaX < -100) {
-    activePhoto.classList.add("exit-left");
-    goToNextPhoto();
-  } else {
-    activePhoto.style.transform = "";
-  }
-});
-
-/* Troca controlada (usada no swipe e nas bolinhas) */
-function goToNextPhoto(index = null) {
-  const oldPhoto = photos[currentIndex];
-  dots[currentIndex].classList.remove("active");
-
-  if (index !== null) {
-    currentIndex = index;
-  } else {
-    currentIndex = (currentIndex + 1) % photos.length;
-  }
-
-  const newPhoto = photos[currentIndex];
-  newPhoto.classList.add("active", "enter-next");
-  dots[currentIndex].classList.add("active");
-
-  setTimeout(() => {
-    oldPhoto.className = "photo";
-    newPhoto.className = "photo active";
-  }, 400);
-}
-
-/* Bolinhas continuam funcionando */
-dots.forEach(dot => {
-  dot.addEventListener("click", () => {
-    const index = Number(dot.dataset.index);
-    if (index !== currentIndex) {
-      photos[currentIndex].classList.add(
-        index > currentIndex ? "exit-left" : "exit-right"
-      );
-      goToNextPhoto(index);
+    function updatePhoto() {
+      cardPhoto.style.backgroundImage = `url('${photos[currentPhoto]}')`;
+      const dots = dotsContainer.querySelectorAll('.dot');
+      dots.forEach((d, i) => d.classList.toggle('active', i === currentPhoto));
     }
+
+    // Botões
+    if(btnHeart){ btnHeart.addEventListener('click', ()=> overlay.classList.add('show')); }
+    if(btnX){ btnX.addEventListener('click', ()=> flashText('Você pulou uma oportunidade... 😢')); }
+    if(closeMatchBtn){ closeMatchBtn.addEventListener('click', ()=> overlay.classList.remove('show')); }
+
+    function flashText(t){
+      const el = document.createElement('div');
+      el.textContent = t;
+      el.style.position='fixed';
+      el.style.left='50%';
+      el.style.top='18%';
+      el.style.transform='translateX(-50%)';
+      el.style.background='linear-gradient(90deg,#ff6a85,#ff4d6d)';
+      el.style.padding='10px 14px';
+      el.style.borderRadius='999px';
+      el.style.boxShadow='0 6px 18px rgba(0,0,0,0.5)';
+      el.style.zIndex=9999;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),1800);
+    }
+  // Mantém a tela de carregamento por 20 segundos
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.getElementById('loadingScreen').classList.add('hide');
+    }, 20000); // 20000 ms = 20 segundos
   });
-});
-
-    /* X e ❤ */
-    btnNo.addEventListener('click', () => {
-      overlayLose.classList.add('active');
-      setTimeout(() => overlayLose.classList.remove('active'), 2000);
-    });
-    btnYes.addEventListener('click', () => {
-      overlayMatch.classList.add('active');
-
-      setTimeout(() => {
-        onMatchHappened({ name: 'Gabriel' });
-      }, 5000);
-    });
-
-    function onMatchHappened(matchUser) {
-      try {
-        localStorage.setItem('lastMatch', JSON.stringify({
-          name: matchUser && matchUser.name ? matchUser.name : null,
-          ts: Date.now()
-        }));
-      } catch (e) {
-        console.warn('localStorage indisponível:', e);
-      }
-      window.location.href = 'https://arcanus09.github.io/Linha-do-Tempo/';
-    }
-
-    const btnPlay = document.getElementById('btnPlay');
-    const btnPause = document.getElementById('btnPause');
-    const audio = document.getElementById('audio');
-
-    btnPlay.addEventListener('click', () => {
-      audio.play();
-      btnPlay.style.display = "none";
-      btnPause.style.display = "flex";
-    });
-    btnPause.addEventListener('click', () => {
-      audio.pause();
-      btnPause.style.display = "none";
-      btnPlay.style.display = "flex";
-    });
   </script>
 </body>
 </html>
-
-
