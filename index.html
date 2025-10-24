@@ -507,7 +507,59 @@ document.body.classList.add('locked'); // 🔒 trava o app até o login
       const dots = dotsContainer.querySelectorAll('.dot');
       dots.forEach((d, i) => d.classList.toggle('active', i === currentPhoto));
     }
+// ==== SWIPE DRAG ====
+let startX = 0;
+let currentX = 0;
+let isDragging = false;
 
+// quando começa o clique ou toque
+cardPhoto.addEventListener('mousedown', startDrag);
+cardPhoto.addEventListener('touchstart', startDrag);
+
+function startDrag(e) {
+  isDragging = true;
+  startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+  cardPhoto.style.transition = 'none'; // remove transição pra seguir o mouse
+}
+
+// enquanto arrasta
+cardPhoto.addEventListener('mousemove', drag);
+cardPhoto.addEventListener('touchmove', drag);
+
+function drag(e) {
+  if (!isDragging) return;
+  currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+  const diff = currentX - startX;
+  cardPhoto.style.transform = `translateX(${diff}px)`; // move a foto junto
+}
+
+// quando solta
+cardPhoto.addEventListener('mouseup', endDrag);
+cardPhoto.addEventListener('touchend', endDrag);
+
+function endDrag(e) {
+  if (!isDragging) return;
+  isDragging = false;
+  const diff = currentX - startX;
+  const threshold = 80; // distância mínima para trocar de foto
+
+  cardPhoto.style.transition = 'transform 0.3s ease'; // anima de volta se não trocar
+
+  if(diff > threshold){
+    // arrastou pra direita → foto anterior
+    currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
+    updatePhoto();
+    cardPhoto.style.transform = 'translateX(0)'; // volta pro centro
+  } else if(diff < -threshold){
+    // arrastou pra esquerda → próxima foto
+    currentPhoto = (currentPhoto + 1) % photos.length;
+    updatePhoto();
+    cardPhoto.style.transform = 'translateX(0)'; // volta pro centro
+  } else {
+    // não ultrapassou threshold → volta pro centro
+    cardPhoto.style.transform = 'translateX(0)';
+  }
+}
     function flashText(t){
       const el = document.createElement('div');
       el.textContent = t;
@@ -675,3 +727,4 @@ function hideLoginAndShowApp() {
   </script>
 </body>
 </html>
+
