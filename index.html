@@ -385,6 +385,182 @@ body.locked main,
 body.locked header {
   display: none !important;
 }
+
+/* ===== TINDER-LIKE CONTROLS & EFFECTS ===== */
+.tinder-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+/* botão base (visual limpo, sem fundo rosa) */
+.tinder-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  border: none;
+  background: #0f1724; /* escuro, discreto */
+  box-shadow: 0 6px 18px rgba(2,6,23,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: rgba(230,238,248,0.92);
+  transition: transform .18s ease, box-shadow .18s ease;
+  cursor: pointer;
+}
+
+/* hover/press visuals (subtle) */
+.tinder-btn:hover { transform: translateY(-4px) scale(1.03); }
+.tinder-btn:active { transform: translateY(-2px) scale(.98); }
+
+/* cores por tipo (ícone colorido ao invés do fundo rosa fixo) */
+.tinder-btn.nope i { color: #ff4d6d; }         /* vermelho */
+.tinder-btn.like i { color: #ff4d6d; }         /* rosa cor do like */
+.tinder-btn.superlike i { color: #1e88e5; }    /* azul */
+.tinder-btn.rewind i { color: #ffd24d; }       /* amarelo */
+
+/* CONTAINER DE EFEITOS (ocupa o card, é absoluta dentro do .card) */
+.effect-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 120; /* acima do conteúdo do card */
+}
+
+/* EFEITO: ícones que "explodem" subindo */
+.effect-icon {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(0) scale(.8);
+  opacity: 0;
+  font-size: 28px;
+  text-shadow: 0 6px 14px rgba(2,6,23,0.6);
+  animation: iconExplode 1400ms cubic-bezier(.2,.9,.3,1) forwards;
+}
+
+@keyframes iconExplode {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(.85); }
+  40% { transform: translateX(-50%) translateY(-22px) scale(1.08); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-86px) scale(1.25); opacity: 0; }
+}
+
+/* === SUPERLIKE: estrela e glow === */
+.superlike-star {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px) scale(0);
+  bottom: 84px;               /* altura acima da área da meta */
+  width: 96px;
+  height: 96px;
+  background-image: url("https://www.pinclipart.com/picdir/big/569-5694235_like-o-superlike-en-tinder-clipart.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 125;
+  pointer-events: none;
+  animation: superStarPop 1800ms cubic-bezier(.2,.9,.25,1) forwards;
+  filter: drop-shadow(0 12px 20px rgba(14,94,151,0.25));
+}
+
+/* animação da estrela (entra e some levemente) */
+@keyframes superStarPop {
+  0% { transform: translateX(-50%) translateY(40px) scale(.2); opacity: 0; }
+  45% { transform: translateX(-50%) translateY(-8px) scale(1.18); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-24px) scale(1); opacity: 0; }
+}
+
+/* glow azul que aparece na base do card */
+.superlike-glow {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 110%;
+  height: 42%;
+  max-height: 120px;
+  background: radial-gradient(circle at 50% 10%, rgba(30,136,229,0.45), rgba(30,136,229,0.18) 30%, transparent 60%);
+  border-radius: 0 0 20px 20px;
+  z-index: 122;
+  pointer-events: none;
+  animation: glowRise 1800ms cubic-bezier(.15,.9,.25,1) forwards;
+  opacity: 0;
+}
+
+@keyframes glowRise {
+  0% { opacity: 0; transform: translateX(-50%) translateY(12px) scale(.9); }
+  40% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.02); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(1.1); }
+}
+
+/* util: pequenas variações posicionais aleatórias */
+.effect-offset-1 { left: 30%; }
+.effect-offset-2 { left: 70%; }
+.effect-offset-3 { left: 20%; }
+.effect-offset-4 { left: 80%; }
+/* ===== FLASH LABELS (NOPE / LIKE / SUPERLIKE / REWIND) ===== */
+.flash-label {
+  position: absolute;
+  top: 16%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(.98);
+  padding: 10px 26px;
+  font-size: 56px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: 6px solid transparent;
+  border-radius: 12px;
+  opacity: 0;
+  z-index: 130;
+  pointer-events: none;
+  background: rgba(255,255,255,0.02); /* MUITO sutil — pode remover se quiser totalmente transparente */
+  transition: transform .28s ease, opacity .28s ease;
+  filter: drop-shadow(0 8px 20px rgba(0,0,0,0.55));
+}
+
+/* sem fundo sólido — só borda e cor do texto */
+.flash-label.show { opacity: 1; transform: translate(-50%,-50%) scale(1.06); }
+
+/* cores (sem preenchimento rosa) */
+.flash-label.nope { color: #ff1744; border-color: rgba(255,23,68,0.12); }
+.flash-label.like { color: #ff4d6d; border-color: rgba(255,77,109,0.12); }
+.flash-label.superlike { color: #00b0ff; border-color: rgba(0,176,255,0.12); }
+.flash-label.reverse { color: #ffd24d; border-color: rgba(255,210,77,0.12); }
+
+/* anima saída suave */
+.flash-label.flyOut {
+  transform: translate(calc(-50% + var(--moveX, 160px)),-50%) scale(1.2);
+  opacity: 0;
+  transition: transform .9s cubic-bezier(.2,.9,.25,1), opacity .5s linear;
+}
+
+/* ===== Particle hearts (like) ===== */
+.particle-heart {
+  position: absolute;
+  bottom: 110px; /* nasce acima da área de meta */
+  font-size: 14px;
+  opacity: 0;
+  transform: translateY(0) scale(.8);
+  z-index: 135;
+  animation: heartFloat 2000ms cubic-bezier(.2,.9,.25,1) forwards;
+  text-shadow: 0 6px 16px rgba(0,0,0,0.45);
+}
+
+@keyframes heartFloat {
+  0% { opacity: 0; transform: translateY(0) scale(.8); }
+  10% { opacity: 1; transform: translateY(-6px) scale(1.06); }
+  50% { transform: translateY(-48px) scale(1.06); opacity: 1; }
+  100% { transform: translateY(-110px) scale(.9); opacity: 0; }
+}
+
+/* ===== efeito de ícones já existente (pequena refinada) ===== */
+.effect-icon { font-size: 28px; text-shadow: 0 6px 14px rgba(2,6,23,0.6); animation: iconExplode 700ms cubic-bezier(.2,.9,.3,1) forwards; }
+@keyframes iconExplode { 0% { opacity: 1; transform: translateY(0) scale(.85);} 40%{ transform: translateY(-22px) scale(1.08);} 100%{ transform: translateY(-86px) scale(1.25); opacity:0;} }
+
+/* ===== garante que superlike já esteja ok (mantive) ===== */
+/* .superlike-star, .superlike-glow — você já tem estas classes no CSS anterior. */
   </style>
 </head>
 <body>
@@ -425,7 +601,8 @@ body.locked header {
   <main>
     <div class="card" id="tinderCard">
       <div class="photo" id="cardPhoto" style="background-image:url('https://i.imgur.com/XWo2fK7.jpeg')"></div>
-
+<!-- CONTAINER DE EFEITOS (adicione logo após a div.photo) -->
+<div id="effectContainer" class="effect-container" aria-hidden="true"></div>
 <div class="meta">
   <div>
     <div style="display:flex;align-items:center;gap:8px;font-weight:700">
@@ -454,11 +631,23 @@ body.locked header {
   </div>
   <audio id="audio" src="https://www.dropbox.com/scl/fi/01b8qqoi7336k32ydltv0/SpotiDown.App-V-rias-Queixas-Gilsons.mp3?rlkey=zubr4q2dkh87f2vxryplosya1&st=fqmlaxf6&raw=1"></audio>
 </div>
-<div class="controls">
-  <button class="btn reverse" id="btnReverse"><i class="fas fa-undo"></i></button>
-  <button class="btn x" id="btnX"><i class="fas fa-times"></i></button>
-  <button class="btn star" id="btnStar"><i class="fas fa-star"></i></button>
-  <button class="btn heart" id="btnHeart"><i class="fas fa-heart"></i></button>
+<!-- ==== CONTROLES DO TINDER (SUBSTITUIR AQUI) ==== -->
+<div class="tinder-controls">
+  <button class="tinder-btn rewind" id="btnReverse" aria-label="Rewind">
+    <i class="fa-solid fa-undo"></i>
+  </button>
+
+  <button class="tinder-btn nope" id="btnX" aria-label="Nope">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
+  <button class="tinder-btn superlike" id="btnStar" aria-label="Superlike">
+    <i class="fa-solid fa-star"></i>
+  </button>
+
+  <button class="tinder-btn like" id="btnHeart" aria-label="Like">
+    <i class="fa-solid fa-heart"></i>
+  </button>
 </div>
       <!-- Modal Match -->
       <div class="matchOverlay" id="matchOverlay">
@@ -560,21 +749,7 @@ function endDrag(e) {
     cardPhoto.style.transform = 'translateX(0)';
   }
 }
-    function flashText(t){
-      const el = document.createElement('div');
-      el.textContent = t;
-      el.style.position='fixed';
-      el.style.left='50%';
-      el.style.top='18%';
-      el.style.transform='translateX(-50%)';
-      el.style.background='linear-gradient(90deg,#ff6a85,#ff4d6d)';
-      el.style.padding='10px 14px';
-      el.style.borderRadius='999px';
-      el.style.boxShadow='0 6px 18px rgba(0,0,0,0.5)';
-      el.style.zIndex=9999;
-      document.body.appendChild(el);
-      setTimeout(()=>el.remove(),1800);
-    }
+
   // Mantém a tela de carregamento por 20 segundos
 window.addEventListener('load', () => {
   const audio = document.getElementById('audio');
@@ -608,49 +783,130 @@ window.addEventListener('load', () => {
   audio.onplay = () => { btnPlay.style.display = 'none'; btnPause.style.display = 'flex'; };
   audio.onpause = () => { btnPause.style.display = 'none'; btnPlay.style.display = 'flex'; };
 });
+/* ===== NOVOS HANDLERS & EFEITOS (COLE NO LUGAR DO BLOCO ANTIGO) ===== */
 const btnX = document.getElementById('btnX');
 const btnStar = document.getElementById('btnStar');
 const btnHeart = document.getElementById('btnHeart');
-const overlay = document.getElementById('matchOverlay');
+const btnReverse = document.getElementById('btnReverse');
+const effectContainerEl = document.getElementById('effectContainer');
+const cardEl = document.getElementById('tinderCard');
+const matchOverlay = document.getElementById('matchOverlay');
 
-function flashText(msg) {
-  const el = document.createElement('div');
-  el.textContent = msg;
-  el.style.position = 'fixed';
-  el.style.left = '50%';
-  el.style.top = '18%';
-  el.style.transform = 'translateX(-50%)';
-  el.style.background = 'linear-gradient(90deg,#ff6a85,#ff4d6d)';
-  el.style.padding = '10px 14px';
-  el.style.borderRadius = '999px';
-  el.style.boxShadow = '0 6px 18px rgba(0,0,0,0.5)';
-  el.style.color = '#fff';
-  el.style.fontWeight = '700';
-  el.style.zIndex = 9999;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 1800);
+/* cria e mostra o flash label (NOPE/LIKE/REWIND/SUPERLIKE) */
+function showFlashLabel(type, moveX = 0) {
+  const label = document.createElement('div');
+  label.className = `flash-label ${type}`;
+  label.textContent = type === 'like' ? 'LIKE' : type === 'nope' ? 'NOPE' : type === 'superlike' ? 'SUPER\nLIKE' : 'REWIND';
+  // se superlike quiser duas linhas, ajusta
+  label.style.whiteSpace = type === 'superlike' ? 'pre' : 'nowrap';
+  // posiciona centralizado
+  cardEl.appendChild(label);
+  // força reflow e mostra
+  void label.offsetWidth;
+  label.classList.add('show');
+  // define movimento personalizado se precisar
+  label.style.setProperty('--moveX', (moveX || (type === 'nope' ? -160 : (type === 'like' ? 160 : 0))) + 'px');
+
+  // saída automática
+  setTimeout(() => {
+    label.classList.add('flyOut');
+    setTimeout(() => label.remove(), 700);
+  }, 600);
 }
 
-// X → rejeitar
-btnX.addEventListener('click', () => {
-  flashText("Você pulou uma oportunidade... 😢");
+/* spawn de pequenos ícones (fa icons) que sobem e somem */
+function spawnIcon(iconClass, color, leftPercent = 50, size = 28) {
+  const i = document.createElement('i');
+  i.className = `fa-solid ${iconClass} effect-icon`;
+  i.style.color = color;
+  i.style.left = leftPercent + '%';
+  i.style.fontSize = size + 'px';
+  effectContainerEl.appendChild(i);
+  // cleanup
+  setTimeout(() => i.remove(), 850);
+}
+
+/* spawn de partículas de coração (para like) */
+function spawnHearts(count = 6) {
+  for (let k=0;k<count;k++){
+    const h = document.createElement('i');
+    h.className = 'fa-solid fa-heart particle-heart';
+    // variação horizontal aleatória
+    const left = 40 + Math.random()*30; // 40%..70%
+    h.style.left = left + '%';
+    h.style.color = '#ff6a85';
+    h.style.fontSize = (10 + Math.round(Math.random()*10)) + 'px';
+    // delay stagger para cada coração
+    h.style.animationDelay = (k * 80) + 'ms';
+    effectContainerEl.appendChild(h);
+    setTimeout(()=> { try{ h.remove(); } catch(e){}; }, 1400 + k*80);
+  }
+}
+
+/* util: animações do card com WAAPI */
+function animateCard(keyframes, opts) {
+  try { cardEl.animate(keyframes, opts); } catch(e) {}
+}
+
+/* ---------- BUTTON HANDLERS ---------- */
+
+/* X (NOPE) */
+btnX && btnX.addEventListener('click', () => {
+  showFlashLabel('nope');                     // label borda vermelha
+  spawnIcon('fa-xmark', '#ff1744', 32, 34);   // ícone que sobe
+  // shake / pequeno toss
+  animateCard([
+    { transform: 'translateX(0) rotate(0deg)' },
+    { transform: 'translateX(-24px) rotate(-8deg)' },
+    { transform: 'translateX(16px) rotate(6deg)' },
+    { transform: 'translateX(0) rotate(0deg)' }
+  ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)'});
 });
 
-// Estrela → super like
-btnStar.addEventListener('click', () => {
-  flashText("Uau! Super Like ativado! ✨");
+/* Heart (LIKE) */
+btnHeart && btnHeart.addEventListener('click', () => {
+  showFlashLabel('like');
+  spawnIcon('fa-heart', '#ff4d6d', 68, 34);
+  spawnHearts(7);
+  // zoom curto
+  animateCard([
+    { transform: 'scale(1)' },
+    { transform: 'scale(1.06)' },
+    { transform: 'scale(1)' }
+  ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)'});
+  // opcional: abrir match overlay (comente se não quiser automaticamente)
+  // matchOverlay.classList.add('show');
 });
 
-// Coração → like
-btnHeart.addEventListener('click', () => {
-  overlay.classList.add('show'); // abre modal de match
-  flashText("❤ Curtiu! É um match! 💫");
+/* Rewind (REVERSE) */
+btnReverse && btnReverse.addEventListener('click', () => {
+  showFlashLabel('reverse');
+  spawnIcon('fa-undo', '#ffd24d', 52, 30);
+  animateCard([
+    { transform: 'translateY(0) rotate(0deg)' },
+    { transform: 'translateY(-14px) rotate(-2deg)' },
+    { transform: 'translateY(0) rotate(0deg)' }
+  ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)'});
 });
 
-// Reverse → voltar
-const btnReverse = document.getElementById('btnReverse');
-btnReverse.addEventListener('click', () => {
-  flashText("Resposta errada, pense mais um pouquinho! 🔄");
+/* Superlike (STAR) */
+btnStar && btnStar.addEventListener('click', () => {
+  showFlashLabel('superlike');
+  spawnIcon('fa-star', '#00b0ff', 62, 30);
+
+  const star = document.createElement('div');
+  star.className = 'superlike-star';
+  effectContainerEl.appendChild(star);
+
+  const glow = document.createElement('div');
+  glow.className = 'superlike-glow';
+  cardEl.appendChild(glow);
+
+  // força reflow
+  void star.offsetWidth;
+  void glow.offsetWidth;
+
+  setTimeout(()=> { try{ star.remove(); } catch(e){}; try{ glow.remove(); } catch(e){}; }, 1100);
 });
 /* === LOGIN LOGIC: cole no final do seu <script> === */
 (function(){
@@ -727,4 +983,3 @@ function hideLoginAndShowApp() {
   </script>
 </body>
 </html>
-
