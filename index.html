@@ -296,6 +296,93 @@ main {
 #btnPause {
   display: none; /* inicia oculto */
 }
+/* === LOGIN SCREEN STYLES (cole no final do <style>) === */
+.login-screen {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(0,0,0,0.75), rgba(0,0,0,0.85));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001; /* acima do loadingScreen */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .28s ease;
+}
+
+.login-screen.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.login-card {
+  width: min(360px, 92vw);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 14px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.6);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.login-logo {
+  width: 120px;
+  height: auto;
+  display: block;
+  margin: 6px auto 8px;
+}
+
+.login-title {
+  margin: 6px 0 12px;
+  font-size: 18px;
+  color: #e6eef8;
+  font-weight: 700;
+}
+
+.login-input {
+  width: 100%;
+  padding: 10px 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: #e6eef8;
+  outline: none;
+  font-size: 14px;
+}
+
+.login-input::placeholder { color: rgba(230,238,248,0.45); }
+
+.login-btn {
+  width: 100%;
+  padding: 10px 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(90deg,#ff6a85,#ff4d6d);
+  color: #fff;
+  font-weight: 700;
+}
+
+.login-error {
+  margin-top: 6px;
+  color: #ffb3b9;
+  font-size: 13px;
+  background: rgba(255,77,109,0.06);
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,77,109,0.08);
+}
+
+/* screen-reader helper (opcional) */
+.sr-only { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px,1px,1px,1px); white-space: nowrap; }
+
+/* Oculta tudo até o login ser feito */
+body.locked main,
+body.locked header {
+  display: none !important;
+}
   </style>
 </head>
 <body>
@@ -306,11 +393,32 @@ main {
     <p class="loading-text">Carregando...</p>
   </div>
 </div>
-  <!-- Header -->
-  <header>
+<!-- Header -->
+<header>
     <img src="https://i.imgur.com/9Ksj1hK.png" alt="Logo Tinder">
   </header>
+<!-- LOGIN SCREEN: cole logo após o loadingScreen -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-card" id="loginCard" role="dialog" aria-label="Tela de login">
+    <img src="https://i.imgur.com/9Ksj1hK.png" alt="Logo" class="login-logo">
 
+    <form id="loginForm" autocomplete="off">
+      <label for="loginEmail" class="sr-only">Email</label>
+      <input id="loginEmail" class="login-input" type="email" placeholder="Email" required>
+
+      <label for="loginPassword" class="sr-only">Senha</label>
+      <input id="loginPassword" class="login-input" type="password" placeholder="Senha" required>
+
+      <div id="loginError" class="login-error" aria-live="polite" hidden>
+        Email ou senha incorretos.
+      </div>
+
+      <button type="submit" class="login-btn">Entrar</button>
+    </form>
+
+  </div>
+</div>
+<!-- fim login screen -->
   <!-- Main -->
   <main>
     <div class="card" id="tinderCard">
@@ -370,6 +478,8 @@ main {
 
   <!-- Scripts -->
   <script>
+document.body.classList.add('locked'); // 🔒 trava o app até o login
+
     const photos = [
       "https://i.imgur.com/XWo2fK7.jpeg",
       "https://i.imgur.com/oKl6OPF.jpeg",
@@ -428,9 +538,6 @@ window.addEventListener('load', () => {
       btnPause.style.display = 'flex';
     }).catch(() => console.log('Autoplay bloqueado até interação.'));
   }
-
-  setTimeout(startMusic, 2000);
-  document.body.addEventListener('click', startMusic, { once: true });
 
   btnPlay.addEventListener('click', () => {
     audio.play();
@@ -491,6 +598,78 @@ const btnReverse = document.getElementById('btnReverse');
 btnReverse.addEventListener('click', () => {
   flashText("Resposta errada, pense mais um pouquinho! 🔄");
 });
+/* === LOGIN LOGIC: cole no final do seu <script> === */
+(function(){
+  // credenciais que você quer aceitar — troque aqui
+  const REAL_EMAIL = "biells@hotmail.com";
+  const REAL_PASSWORD = "02112024";
+
+  const loadingScreen = document.getElementById('loadingScreen');
+  const loginScreen = document.getElementById('loginScreen');
+  const loginForm = document.getElementById('loginForm');
+  const loginError = document.getElementById('loginError');
+  const loginCard = document.getElementById('loginCard');
+
+  // função para mostrar o login (chame depois do loading)
+  function showLogin() {
+    loginScreen.classList.add('show');
+    // foco no input email para acessibilidade
+    const emailInput = document.getElementById('loginEmail');
+    if(emailInput) emailInput.focus();
+  }
+
+  // função para esconder login e liberar app
+function hideLoginAndShowApp() {
+  loginScreen.classList.remove('show');
+  document.body.classList.remove('locked'); // <- libera o app
+  const headerEl = document.querySelector('header');
+  if(headerEl) headerEl.style.display = 'flex';
+  setTimeout(()=>{ try { loginScreen.remove(); } catch(e){} }, 400);
+
+  // ✅ Inicia a música ao fazer login
+  const audio = document.getElementById('audio');
+  if (audio) audio.play();
+}
+
+  // exemplo: assim que o loading terminar (coloque o seu tempo aqui)
+  // se você já chama loadingScreen.classList.add('hide') em outro ponto, substitua por showLogin()
+  window.addEventListener('load', () => {
+    // se você já remove o loadingScreen em outro ponto, apenas invoque showLogin()
+    // aqui: espera 2s e mostra a tela de login
+    setTimeout(() => {
+      // oculta loadingScreen visualmente (se ainda estiver)
+      if(loadingScreen) loadingScreen.classList.add('hide');
+      showLogin();
+    }, 2000); // <- alterar para o tempo que quiser (2000 = 2s)
+  });
+
+  // submissão do formulário
+  loginForm.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+
+    // validação simples
+    if(email === REAL_EMAIL && pass === REAL_PASSWORD) {
+      // sucesso
+      loginError.hidden = true;
+      hideLoginAndShowApp();
+      // opcional: iniciar música/estado do app aqui se precisar
+    } else {
+      // erro: mostra mensagem
+      loginError.hidden = false;
+      // pequeno shake visual na caixa
+      loginCard.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-6px)' },
+        { transform: 'translateX(6px)' },
+        { transform: 'translateX(0)' }
+      ], { duration: 350, easing: 'ease-in-out' });
+    }
+  });
+
+  // permitir login também ao pressionar Enter nos inputs (já coberto pelo form)
+})();
   </script>
 </body>
 </html>
