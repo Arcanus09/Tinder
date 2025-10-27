@@ -1,4 +1,4 @@
-<!doctype html>
+ <!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
@@ -179,29 +179,148 @@ main {
       background: var(--accent);
       transform: scale(1.2);
     }
+/* ===== Estilo novo do Match (Tinder-like) ===== */
+.matchOverlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  background: linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.85));
+  backdrop-filter: blur(6px) saturate(1.05);
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  transition: opacity .36s ease, transform .36s ease;
+  opacity: 0;
+}
 
-    /* Modal Match */
-    .matchOverlay {
-      position: absolute; inset: 0;
-      background: rgba(0,0,0,0.6);
-      display: flex; align-items: center; justify-content: center;
-      backdrop-filter: blur(4px);
-      opacity: 0; pointer-events: none;
-      transition: all .36s;
-    }
-    .matchOverlay.show { opacity: 1; pointer-events: auto; }
-    .matchCard {
-      background: var(--glass);
-      padding: 20px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.06);
-      text-align: center;
-      width: 90%;
-      max-width: 320px;
-    }
-    .matchCard h2 { margin: 0 0 6px; font-size: 20px; }
-    .matchRow { display: flex; gap: 10px; align-items: center; justify-content: center; margin: 12px 0; }
-    .matchRow img { width: 72px; height: 72px; border-radius: 10px; object-fit: cover; border: 2px solid #fff; }
+.matchOverlay.show {
+  display: flex;
+  opacity: 1;
+}
+
+/* central card */
+.matchCard {
+  width: min(360px, 92vw);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(2,6,23,0.7);
+  border: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: visible;
+}
+
+/* close */
+.close-match {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 22px;
+  color: rgba(230,238,248,0.8);
+  cursor: pointer;
+}
+
+/* photos */
+.match-photos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+  position: relative;
+  height: 96px;
+}
+
+.mphoto {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+  border: 3px solid rgba(255,255,255,0.06);
+  transform-origin: center;
+  transition: transform .42s cubic-bezier(.2,.9,.25,1);
+}
+
+/* deslocamento para o estilo overlapping */
+.mphoto.left { transform: translateX(-18px) rotate(-6deg); }
+.mphoto.right { transform: translateX(18px) rotate(6deg); }
+
+/* coração central */
+.heart-burst {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) translateY(-6px) scale(0);
+  width: 88px;
+  height: 88px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 20;
+  animation: heartPop .9s cubic-bezier(.2,.9,.25,1) forwards;
+}
+.heart-burst i {
+  font-size: 36px;
+  color: #ff4d6d;
+  text-shadow: 0 8px 22px rgba(255,77,109,0.16);
+  filter: drop-shadow(0 8px 22px rgba(255,77,109,0.06));
+}
+
+/* textos */
+.match-title {
+  margin: 10px 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+}
+.match-sub {
+  margin: 0 0 12px;
+  color: rgba(230,238,248,0.78);
+  font-size: 13px;
+}
+
+/* ações */
+.match-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.match-btn {
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 130px;
+  font-family: 'GothamRnd', sans-serif;
+}
+.match-btn.primary {
+  background: linear-gradient(90deg,#ff6a85,#ff4d6d);
+  color: #fff;
+}
+.match-btn.secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: rgba(230,238,248,0.9);
+}
+
+/* animações */
+@keyframes heartPop {
+  0% { transform: translateX(-50%) translateY(6px) scale(.1); opacity: 0; }
+  40% { transform: translateX(-50%) translateY(-6px) scale(1.12); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-8px) scale(1); opacity: 1; }
+}
+
+/* responsivo */
+@media(max-width:420px) {
+  .mphoto { width: 80px; height: 80px; }
+  .heart-burst { width: 72px; height: 72px; }
+}
 
     /* Responsivo */
     @media(max-width:480px){
@@ -649,23 +768,30 @@ body.locked header {
     <i class="fa-solid fa-heart"></i>
   </button>
 </div>
-      <!-- Modal Match -->
-      <div class="matchOverlay" id="matchOverlay">
-        <div class="matchCard">
-          <h2>💫 It's a match! 💫</h2>
-          <div class="matchRow">
-            <img src="https://via.placeholder.com/150/FFB6C1/000000?text=Fran" alt="Fran">
-            <img src="https://via.placeholder.com/150/87CEFA/000000?text=Gabriel" alt="Gabriel">
-          </div>
-          <p style="color:var(--muted)">"Desde o primeiro match, eu já sabia."</p>
-          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px">
-            <button class="btn heart" id="openChat">Ver mensagens</button>
-            <button class="btn x" id="closeMatch">Fechar</button>
-          </div>
-        </div>
-      </div>
+<!-- ===== Match Overlay (substituir o bloco antigo) ===== -->
+<div class="matchOverlay" id="matchOverlay" aria-hidden="true" role="dialog" aria-label="Tela de match">
+  <div class="matchCard">
+    <button id="closeMatch" class="close-match" aria-label="Fechar match">&times;</button>
+
+    <div class="match-photos" aria-hidden="false">
+      <img id="matchImgLeft" src="https://i.imgur.com/vHgdGsW.jpeg" alt="Fran" class="mphoto left">
+      <div class="heart-burst" aria-hidden="true"><i class="fa-solid fa-heart"></i></div>
+      <img id="matchImgRight" src="https://i.imgur.com/LJ8wHFU.jpeg" alt="Gabriel" class="mphoto right">
     </div>
-  </main>
+
+    <h2 class="match-title">IT'S A MATCH! 💫</h2>
+    <p class="match-sub">Você e Fran se curtiram. Agora é a hora de conversar 💬</p>
+
+    <div class="match-actions">
+      <button id="openChat" class="match-btn primary">✉️ Ver mensagens</button>
+      <button id="closeMatchBtn" class="match-btn secondary">Continuar explorando</button>
+    </div>
+  </div>
+
+  <!-- canvas de confete (fora da card para ocupar toda a overlay) -->
+  <canvas id="confettiCanvas" aria-hidden="true"></canvas>
+</div>
+<!-- ===== fim Match Overlay ===== -->
 
   <!-- Scripts -->
   <script>
@@ -790,7 +916,131 @@ const btnHeart = document.getElementById('btnHeart');
 const btnReverse = document.getElementById('btnReverse');
 const effectContainerEl = document.getElementById('effectContainer');
 const cardEl = document.getElementById('tinderCard');
-const matchOverlay = document.getElementById('matchOverlay');
+// ---- Funções e controle do novo overlay de match ----
+const matchOverlayEl = document.getElementById('matchOverlay');
+const matchImgLeft = document.getElementById('matchImgLeft');
+const matchImgRight = document.getElementById('matchImgRight');
+const openChatBtn = document.getElementById('openChat');
+const closeMatchBtn = document.getElementById('closeMatchBtn');
+const closeX = document.getElementById('closeMatch');
+const confettiCanvas = document.getElementById('confettiCanvas');
+const chatSection = document.getElementById('chatSection'); // seu chat já adicionado antes
+const verMensagensBtn = document.getElementById('verMensagensBtn');
+
+// Ajusta canvas full overlay
+function fitCanvas() {
+  confettiCanvas.width = window.innerWidth;
+  confettiCanvas.height = window.innerHeight;
+  confettiCanvas.style.position = 'absolute';
+  confettiCanvas.style.inset = '0';
+  confettiCanvas.style.zIndex = 990; // atrás da matchCard (9999) mas acima do fundo
+  confettiCanvas.style.pointerEvents = 'none';
+}
+fitCanvas();
+window.addEventListener('resize', fitCanvas);
+
+// confetti simples (pequeno, leve)
+function runConfetti(duration = 1400) {
+  const ctx = confettiCanvas.getContext('2d');
+  const W = confettiCanvas.width;
+  const H = confettiCanvas.height;
+  const colors = ['#ff6a85','#ffd24d','#6fe7ff','#ffd6e0','#9be7a8'];
+  const particles = [];
+  const count = 48;
+  for (let i=0;i<count;i++){
+    particles.push({
+      x: Math.random()*W,
+      y: -20 - Math.random()*H*0.2,
+      w: 6 + Math.random()*12,
+      h: 6 + Math.random()*6,
+      vx: -60 + Math.random()*120,
+      vy: 80 + Math.random()*160,
+      color: colors[Math.floor(Math.random()*colors.length)],
+      rot: Math.random()*360,
+      rotSpeed: (Math.random()-0.5)*6
+    });
+  }
+  let start = null;
+  function step(ts) {
+    if(!start) start = ts;
+    const t = ts - start;
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p => {
+      p.x += p.vx * 0.016;
+      p.y += p.vy * 0.016;
+      p.vy += 6 * 0.016; // gravidade sutil
+      p.rot += p.rotSpeed;
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+    if (t < duration) {
+      requestAnimationFrame(step);
+    } else {
+      ctx.clearRect(0,0,W,H);
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// mostra overlay com imagens/names (opcionais)
+function showMatchOverlay(opts = {}) {
+  // se quiser, atualize dinamicamente as imgs: opts.left, opts.right
+  if (opts.left) matchImgLeft.src = opts.left;
+  if (opts.right) matchImgRight.src = opts.right;
+
+  // anima fotos (retrigger)
+  matchImgLeft.style.transform = 'translateX(-18px) rotate(-6deg) scale(.94)';
+  matchImgRight.style.transform = 'translateX(18px) rotate(6deg) scale(.94)';
+  // força reflow e volta ao normal para efeito
+  void matchImgLeft.offsetWidth;
+  setTimeout(()=> {
+    matchImgLeft.style.transform = 'translateX(-18px) rotate(-6deg) scale(1)';
+    matchImgRight.style.transform = 'translateX(18px) rotate(6deg) scale(1)';
+  }, 80);
+
+  matchOverlayEl.classList.add('show');
+  // start confetti (curto)
+  runConfetti(1400);
+}
+
+// fechar overlay
+function hideMatchOverlay() {
+  matchOverlayEl.classList.remove('show');
+}
+
+// liga eventos dos botões
+openChatBtn.addEventListener('click', () => {
+  hideMatchOverlay();
+  // mostra seu chat (se existir)
+  if (chatSection) chatSection.style.display = 'flex';
+  // centraliza focus no botão ver mensagens pra acessibilidade
+  if (verMensagensBtn) { verMensagensBtn.focus(); }
+});
+
+closeMatchBtn.addEventListener('click', hideMatchOverlay);
+closeX.addEventListener('click', hideMatchOverlay);
+
+// ESC para fechar
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && matchOverlayEl.classList.contains('show')) hideMatchOverlay();
+});
+
+/* Integração com o botão de coração (btnHeart)
+   -> ao clicar no like, executa as animações existentes e abre o overlay após 600ms
+   Substitui a abertura anterior por innerHTML (caso exista); aqui é mais elegante.
+*/
+const existingBtnHeart = document.getElementById('btnHeart');
+if (existingBtnHeart) {
+  existingBtnHeart.addEventListener('click', () => {
+    // abre overlay com imagens já definidas no card (padrão)
+    // Se quiser usar imagens dinâmicas, passe { left: 'urlLeft', right: 'urlRight' }
+    setTimeout(() => showMatchOverlay(), 600);
+  });
+}
 
 /* cria e mostra o flash label (NOPE/LIKE/REWIND/SUPERLIKE) */
 function showFlashLabel(type, moveX = 0) {
@@ -853,7 +1103,6 @@ function animateCard(keyframes, opts) {
 /* X (NOPE) */
 btnX && btnX.addEventListener('click', () => {
   showFlashLabel('nope');                     // label borda vermelha
-  spawnIcon('fa-xmark', '#ff1744', 32, 34);   // ícone que sobe
   // shake / pequeno toss
   animateCard([
     { transform: 'translateX(0) rotate(0deg)' },
@@ -874,14 +1123,11 @@ btnHeart && btnHeart.addEventListener('click', () => {
     { transform: 'scale(1.06)' },
     { transform: 'scale(1)' }
   ], { duration: 420, easing: 'cubic-bezier(.2,.9,.2,1)'});
-  // opcional: abrir match overlay (comente se não quiser automaticamente)
-  // matchOverlay.classList.add('show');
-});
+}); // <-- ESTA LINHA FALTAVA! Fecha o handler do click do heart.
 
 /* Rewind (REVERSE) */
 btnReverse && btnReverse.addEventListener('click', () => {
   showFlashLabel('reverse');
-  spawnIcon('fa-undo', '#ffd24d', 52, 30);
   animateCard([
     { transform: 'translateY(0) rotate(0deg)' },
     { transform: 'translateY(-14px) rotate(-2deg)' },
@@ -892,7 +1138,6 @@ btnReverse && btnReverse.addEventListener('click', () => {
 /* Superlike (STAR) */
 btnStar && btnStar.addEventListener('click', () => {
   showFlashLabel('superlike');
-  spawnIcon('fa-star', '#00b0ff', 62, 30);
 
   const star = document.createElement('div');
   star.className = 'superlike-star';
