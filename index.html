@@ -1011,58 +1011,52 @@ document.body.classList.add('locked'); // 🔒 trava o app até o login
       const dots = dotsContainer.querySelectorAll('.dot');
       dots.forEach((d, i) => d.classList.toggle('active', i === currentPhoto));
     }
-// ==== SWIPE DRAG ====
+// ==== SWIPE DRAG (refinado) ====
 let startX = 0;
 let currentX = 0;
 let isDragging = false;
 
-// quando começa o clique ou toque
-cardPhoto.addEventListener('mousedown', startDrag);
-cardPhoto.addEventListener('touchstart', startDrag);
+cardPhoto.addEventListener("mousedown", startDrag);
+cardPhoto.addEventListener("touchstart", startDrag);
 
 function startDrag(e) {
   isDragging = true;
-  startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
-  cardPhoto.style.transition = 'none'; // remove transição pra seguir o mouse
+  startX = e.type === "mousedown" ? e.clientX : e.touches[0].clientX;
+  cardPhoto.style.transition = "none";
 }
 
-// enquanto arrasta
-cardPhoto.addEventListener('mousemove', drag);
-cardPhoto.addEventListener('touchmove', drag);
+cardPhoto.addEventListener("mousemove", drag);
+cardPhoto.addEventListener("touchmove", drag);
 
 function drag(e) {
   if (!isDragging) return;
-  currentX = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+  currentX = e.type === "mousemove" ? e.clientX : e.touches[0].clientX;
   const diff = currentX - startX;
-  cardPhoto.style.transform = `translateX(${diff}px)`; // move a foto junto
+  cardPhoto.style.transform = `translateX(${diff}px) rotate(${diff / 25}deg)`;
+  cardPhoto.style.opacity = `${1 - Math.abs(diff) / 400}`;
 }
 
-// quando solta
-cardPhoto.addEventListener('mouseup', endDrag);
-cardPhoto.addEventListener('touchend', endDrag);
+cardPhoto.addEventListener("mouseup", endDrag);
+cardPhoto.addEventListener("touchend", endDrag);
 
-function endDrag(e) {
+function endDrag() {
   if (!isDragging) return;
   isDragging = false;
   const diff = currentX - startX;
-  const threshold = 80; // distância mínima para trocar de foto
+  const threshold = 80;
+  cardPhoto.style.transition = "all 0.3s ease";
 
-  cardPhoto.style.transition = 'transform 0.3s ease'; // anima de volta se não trocar
-
-  if(diff > threshold){
-    // arrastou pra direita → foto anterior
+  if (diff > threshold) {
     currentPhoto = (currentPhoto - 1 + photos.length) % photos.length;
-    updatePhoto();
-    cardPhoto.style.transform = 'translateX(0)'; // volta pro centro
-  } else if(diff < -threshold){
-    // arrastou pra esquerda → próxima foto
+  } else if (diff < -threshold) {
     currentPhoto = (currentPhoto + 1) % photos.length;
-    updatePhoto();
-    cardPhoto.style.transform = 'translateX(0)'; // volta pro centro
-  } else {
-    // não ultrapassou threshold → volta pro centro
-    cardPhoto.style.transform = 'translateX(0)';
   }
+  cardPhoto.style.opacity = 0;
+  cardPhoto.style.transform = "translateX(0)";
+  setTimeout(() => {
+    updatePhoto();
+    cardPhoto.style.opacity = 1;
+  }, 200);
 }
 
   // Mantém a tela de carregamento por 20 segundos
@@ -1072,10 +1066,9 @@ window.addEventListener('load', () => {
   const btnPause = document.getElementById('btnPause');
   const loadingScreen = document.getElementById('loadingScreen');
 
-  // Esconde a tela de carregamento
-  loadingScreen.classList.add('hide');
-  setTimeout(() => { loadingScreen.remove(); }, 2000);
-
+  // NÃO remover a tela aqui — deixamos para o outro handler que controla por quanto tempo o loading deve ficar.
+  // loadingScreen.classList.add('hide');
+  // setTimeout(() => { loadingScreen.remove(); }, 20000);
   function startMusic() {
     audio.play().then(() => {
       btnPlay.style.display = 'none';
@@ -1523,7 +1516,7 @@ function hideLoginAndShowApp() {
       // oculta loadingScreen visualmente (se ainda estiver)
       if(loadingScreen) loadingScreen.classList.add('hide');
       showLogin();
-    }, 2000); // <- alterar para o tempo que quiser (2000 = 2s)
+    }, 20000); // <- alterar para o tempo que quiser (20000 = 20s)
   });
 
   // submissão do formulário
