@@ -680,6 +680,115 @@ body.locked header {
 
 /* ===== garante que superlike já esteja ok (mantive) ===== */
 /* .superlike-star, .superlike-glow — você já tem estas classes no CSS anterior. */
+/* ===== CHAT OVERLAY ESTILOS (cole no final do <style>) ===== */
+.chat-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items:center;
+  justify-content:center;
+  z-index: 10010;
+  background: linear-gradient(180deg, rgba(2,6,23,0.6), rgba(2,6,23,0.9));
+  -webkit-backdrop-filter: blur(6px) saturate(1.05);
+  backdrop-filter: blur(6px) saturate(1.05);
+  padding: 28px;
+}
+
+.chat-overlay.show { display:flex; }
+
+.chat-window {
+  width: min(420px, 96vw);
+  height: min(86vh, 760px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border-radius: 14px;
+  box-shadow: 0 30px 70px rgba(2,6,23,0.7);
+  overflow: hidden;
+  display:flex;
+  flex-direction:column;
+  border: 1px solid rgba(255,255,255,0.04);
+  position: relative;
+}
+
+.chat-header{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,0.02); }
+.chat-header img{ width:44px; height:44px; border-radius:10px; object-fit:cover; box-shadow:0 6px 20px rgba(0,0,0,0.6); border:2px solid rgba(255,255,255,0.03); }
+.chat-header .title{ font-weight:800; font-size:15px; color:#e6eef8; }
+.chat-header .sub{ font-size:12px; color:rgba(230,238,248,0.7); }
+
+.chat-body { flex:1; padding:12px; display:flex; flex-direction:column; gap:12px; overflow-y:auto; -webkit-overflow-scrolling:touch; background:linear-gradient(transparent, rgba(255,255,255,0.005)); }
+
+.msg {
+  max-width:86%;
+  align-self:flex-end;
+  background: linear-gradient(90deg,#ff6a85,#ff4d6d);
+  color:#fff;
+  padding:10px 14px;
+  border-radius:18px 18px 6px 18px;
+  font-size:14px;
+  line-height:1.24;
+  box-shadow:0 8px 26px rgba(2,6,23,0.5);
+  opacity:0;
+  transform: translateY(8px) scale(.995);
+  transition: opacity .24s ease, transform .28s cubic-bezier(.2,.9,.25,1);
+}
+.msg.show { opacity:1; transform: translateY(0) scale(1); }
+
+.typing-row { display:flex; justify-content:flex-end; gap:8px; }
+
+.typing-bubble {
+  background: rgba(255,255,255,0.03);
+  color: rgba(230,238,248,0.85);
+  padding: 8px 12px;
+  border-radius: 12px 12px 6px 12px;
+  font-size:13px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:120px;
+}
+
+.typing-dots { display:inline-flex; gap:4px; align-items:center; }
+.typing-dots span { width:6px; height:6px; border-radius:50%; background: rgba(230,238,248,0.65); opacity:0.35; transform:translateY(0); animation: dotJump 1s infinite; }
+.typing-dots span:nth-child(1){ animation-delay:0s; }
+.typing-dots span:nth-child(2){ animation-delay:0.12s; }
+.typing-dots span:nth-child(3){ animation-delay:0.24s; }
+
+@keyframes dotJump {
+  0% { transform: translateY(0); opacity:0.35; }
+  30% { transform: translateY(-6px); opacity:1; }
+  60% { transform: translateY(0); opacity:0.6; }
+  100% { transform: translateY(0); opacity:0.35; }
+}
+
+.chat-footer 
+ padding:10px;
+border-top:1px solid rgba(255,255,255,0.02);
+display:flex; gap:8px;
+justify-content:space-between;
+align-items:center;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent !important;
+  border: none !important;
+  font-size: 22px;
+  color: rgba(230,238,248,0.8);
+  cursor: pointer;
+}
+
+.replay-chat {
+background: linear-gradient(90deg,#ff6a85,#ff4d6d);
+color:#fff;
+border:none;
+font-family: inherit;
+padding:8px 12px;
+border-radius:10px;
+cursor:pointer;
+}
+
+@media(max-width:420px){ .chat-window{ width:96vw; height:92vh; } .chat-header img{ width:40px; height:40px; } 
   </style>
 </head>
 <body>
@@ -701,10 +810,10 @@ body.locked header {
 
     <form id="loginForm" autocomplete="off">
       <label for="loginEmail" class="sr-only">Email</label>
-      <input id="loginEmail" class="login-input" type="email" placeholder="Email" required>
+      <input id="loginEmail" class="login-input" type="email" placeholder="example@hotmail.com" required>
 
       <label for="loginPassword" class="sr-only">Senha</label>
-      <input id="loginPassword" class="login-input" type="password" placeholder="Senha" required>
+      <input id="loginPassword" class="login-input" type="password" placeholder="12345678" required>
 
       <div id="loginError" class="login-error" aria-live="polite" hidden>
         Email ou senha incorretos.
@@ -771,8 +880,9 @@ body.locked header {
 <!-- ===== Match Overlay (substituir o bloco antigo) ===== -->
 <div class="matchOverlay" id="matchOverlay" aria-hidden="true" role="dialog" aria-label="Tela de match">
   <div class="matchCard">
-    <button id="closeMatch" class="close-match" aria-label="Fechar match">&times;</button>
-
+<button id="closeMatch" class="close-match" aria-label="Fechar match">
+  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+</button>
     <div class="match-photos" aria-hidden="false">
       <img id="matchImgLeft" src="https://i.imgur.com/vHgdGsW.jpeg" alt="Fran" class="mphoto left">
       <div class="heart-burst" aria-hidden="true"><i class="fa-solid fa-heart"></i></div>
@@ -780,7 +890,7 @@ body.locked header {
     </div>
 
     <h2 class="match-title">IT'S A MATCH! 💫</h2>
-    <p class="match-sub">Você e Fran se curtiram. Agora é a hora de conversar 💬</p>
+    <p class="match-sub">Você e Fran se curtiram. Bora ver as mensagens? 💬</p>
 
     <div class="match-actions">
       <button id="openChat" class="match-btn primary">✉️ Ver mensagens</button>
@@ -792,7 +902,32 @@ body.locked header {
   <canvas id="confettiCanvas" aria-hidden="true"></canvas>
 </div>
 <!-- ===== fim Match Overlay ===== -->
+<!-- ===== CHAT OVERLAY MARKUP (cole após o matchOverlay) ===== -->
+<div id="chatOverlay" class="chat-overlay" aria-hidden="true" role="dialog" aria-label="Tela de mensagens">
+  <div class="chat-window" role="document">
+    <div class="chat-header">
+      <img src="https://i.imgur.com/vHgdGsW.jpeg" alt="Fran foto" aria-hidden="true">
+      <div>
+        <div class="title">Fran</div>
+        <div class="sub">Você — Histórico de mensagens</div>
+      </div>
+      <div style="margin-left:auto; display:flex; gap:8px;">
+<button id="btnCloseChat" class="close-button" aria-label="Fechar chat">
+  <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+</button>
+      </div>
+    </div>
 
+    <div class="chat-body" id="chatBody" aria-live="polite" aria-atomic="false"></div>
+
+<div class="chat-footer" style="font-size:12px;color:rgba(230,238,248,0.75); display:flex; align-items:center; gap:8px;">
+  Quer ver de novo? Só clicar no botão de Repetir ✨👉🏻
+  <button id="btnReplay" class="replay-chat">Repetir</button>
+</div>
+    </div>
+  </div>
+</div>
+<!-- ===== FIM CHAT OVERLAY ===== -->
   <!-- Scripts -->
   <script>
 document.body.classList.add('locked'); // 🔒 trava o app até o login
@@ -1012,13 +1147,12 @@ function hideMatchOverlay() {
   matchOverlayEl.classList.remove('show');
 }
 
-// liga eventos dos botões
-openChatBtn.addEventListener('click', () => {
+/* Substitua/Atualize o handler do botão "Ver mensagens" (openChat) para abrir o chatOverlay.
+   Procure no seu script a parte que faz: openChatBtn.addEventListener('click', ...);
+   Substitua o conteúdo dessa função por isto: */
+openChatBtn && openChatBtn.addEventListener('click', () => {
   hideMatchOverlay();
-  // mostra seu chat (se existir)
-  if (chatSection) chatSection.style.display = 'flex';
-  // centraliza focus no botão ver mensagens pra acessibilidade
-  if (verMensagensBtn) { verMensagensBtn.focus(); }
+  showChatOverlay();
 });
 
 closeMatchBtn.addEventListener('click', hideMatchOverlay);
@@ -1153,6 +1287,107 @@ btnStar && btnStar.addEventListener('click', () => {
 
   setTimeout(()=> { try{ star.remove(); } catch(e){}; try{ glow.remove(); } catch(e){}; }, 1100);
 });
+/* ===== LÓGICA DA TELA DE CHAT (cole antes do bloco de login) ===== */
+
+/* EDITE AQUI para trocar as mensagens que você quer enviar */
+const messages = [
+  "Oi amorzinho 💌",
+  "Tô passando pra dizer que te amo muito.",
+  "Saudade enorme hoje 😘",
+  "Quando você chegar eu quero maratonar Mario com você 🕹️💖",
+  "Beijo, te amo."
+];
+
+let sending = false;
+const chatOverlay = document.getElementById('chatOverlay');
+const chatBody = document.getElementById('chatBody');
+const btnCloseChat = document.getElementById('btnCloseChat');
+const btnReplay = document.getElementById('btnReplay');
+
+// util: cria a bolha de mensagem (só sua mensagem, alinhada à direita)
+function appendMessageBubble(text) {
+  const el = document.createElement('div');
+  el.className = 'msg';
+  el.textContent = text;
+  chatBody.appendChild(el);
+  requestAnimationFrame(() => {
+    el.classList.add('show');
+    chatBody.scrollTop = chatBody.scrollHeight;
+  });
+  return el;
+}
+
+// util: mostra o typing indicator row (Fran está digitando...)
+function createTypingRow() {
+  const row = document.createElement('div');
+  row.className = 'typing-row';
+  const bubble = document.createElement('div');
+  bubble.className = 'typing-bubble';
+  bubble.innerHTML = `<strong style="font-weight:700;margin-right:8px">Fran está digitando</strong>
+    <span class="typing-dots" aria-hidden="true"><span></span><span></span><span></span></span>`;
+  row.appendChild(bubble);
+  chatBody.appendChild(row);
+  chatBody.scrollTop = chatBody.scrollHeight;
+  return row;
+}
+
+// envia as mensagens sequencialmente (com typing simulation)
+async function playMessagesSequence(list) {
+  if (sending) return;
+  sending = true;
+  chatBody.innerHTML = ''; // limpa histórico (comente se quiser manter)
+
+  for (let i=0;i<list.length;i++){
+    const text = list[i];
+    const typingRow = createTypingRow();
+
+    // tempo de digitação proporcional ao tamanho (com limites)
+const base = Math.max(2500, Math.min(6000, text.length * 180));
+    const jitter = Math.floor(Math.random() * 800);
+    const typingTime = base + jitter;
+
+  // Mantém o "Fran está digitando..." visível por mais tempo
+  await new Promise(res => setTimeout(res, typingTime));
+
+    try { typingRow.remove(); } catch(e){}
+    appendMessageBubble(text);
+  // Pausa maior entre as mensagens
+    await new Promise(res => setTimeout(res, 1800));
+  }
+  sending = false;
+}
+
+// abre o overlay de chat e inicia a sequência
+function showChatOverlay() {
+  chatOverlay.classList.add('show');
+  chatOverlay.setAttribute('aria-hidden','false');
+  setTimeout(()=> {
+    playMessagesSequence(messages);
+  }, 220);
+}
+
+// fecha o overlay
+function hideChatOverlay() {
+  chatOverlay.classList.remove('show');
+  chatOverlay.setAttribute('aria-hidden','true');
+}
+
+// replay (botão)
+btnReplay && btnReplay.addEventListener('click', () => {
+  if (sending) return;
+  playMessagesSequence(messages);
+});
+
+// botão fechar
+btnCloseChat && btnCloseChat.addEventListener('click', () => {
+  hideChatOverlay();
+});
+
+// fechar com ESC quando chat aberto
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && chatOverlay.classList.contains('show')) hideChatOverlay();
+});
+
 /* === LOGIN LOGIC: cole no final do seu <script> === */
 (function(){
   // credenciais que você quer aceitar — troque aqui
