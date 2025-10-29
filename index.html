@@ -114,6 +114,7 @@ main {
       box-shadow: 0 8px 30px rgba(2,6,23,0.6);
       position: relative;
       border: 1px solid rgba(255,255,255,0.03);
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
     }
 
     /* Foto retrato */
@@ -157,10 +158,26 @@ main {
   transform: scale(1.15);
 }
 
-.btn.x { background: #1e1e1e; color: #ff6a85; }
-.btn.reverse { background: #1e1e1e; color: #fdd835; }
-.btn.star { background: #1e1e1e; color: #5dc1ff; }
-.btn.heart { background: #1e1e1e; color: #ff4d6d; }
+/* Botão X */
+.btn.x { 
+background: #1e1e1e;
+color: #ff6a85;
+}
+/* Botão Reverse */
+.btn.reverse {
+background: #1e1e1e;
+color: #fdd835;
+}
+/* Botão Superlike */
+.btn.star {
+background: #1e1e1e;
+color: #5dc1ff;
+}
+/* Botão Coração */
+.btn.heart {
+background: #1e1e1e;
+color: #ff4d6d;
+}
 
     /* Bolinhas de navegação */
     .photo-dots {
@@ -843,6 +860,47 @@ cursor:pointer;
 .timeline-btn.glow {
   animation: buttonFadeIn 1.5s ease forwards, pulseGlow 2.5s ease-in-out infinite 2s;
 }
+/* Vermelho - botão .btn.x */
+.card.glow-nope {
+  box-shadow: 0 0 40px 10px rgba(255, 23, 68, 0.6);
+  transform: scale(1.02);
+}
+
+/* Rosa - botão .btn.heart */
+.card.glow-like {
+  box-shadow: 0 0 40px 10px rgba(255, 77, 109, 0.6);
+  transform: scale(1.02);
+}
+
+/* Azul - botão .btn.star */
+.card.glow-superlike {
+  box-shadow: 0 0 40px 10px rgba(0, 176, 255, 0.6);
+  transform: scale(1.02);
+}
+
+/* Amarelo - botão .btn.reverse */
+.card.glow-reverse {
+  box-shadow: 0 0 40px 10px rgba(255, 210, 77, 0.6);
+  transform: scale(1.02);
+}
+
+/* Faz o brilho desaparecer suavemente */
+.card.remove-glow {
+  box-shadow: none;
+  transform: scale(1);
+  transition: box-shadow 0.6s ease-out, transform 0.6s ease-out;
+}
+
+/* ===== PARTE DE BAIXO AZUL (SUPERLIKE) ===== */
+.card-info {
+  background: rgba(255, 255, 255, 0.9);
+  transition: background 0.4s ease;
+}
+
+/* Quando o superlike é ativado */
+.card.superlike-active .card-info {
+  background: linear-gradient(to top, rgba(0,176,255,0.8), rgba(0,176,255,0.15));
+}
   </style>
 </head>
 <body>
@@ -1334,6 +1392,36 @@ btnStar && btnStar.addEventListener('click', () => {
 
   setTimeout(()=> { try{ star.remove(); } catch(e){}; try{ glow.remove(); } catch(e){}; }, 1100);
 });
+
+/* ===== EFEITO DE LUZ COLORIDA + SUPERLIKE (ADAPTADO) ===== */
+function addGlow(type) {
+  const card = document.querySelector('.card'); 
+  card.classList.remove('glow-nope', 'glow-like', 'glow-superlike', 'glow-reverse', 'remove-glow');
+  card.classList.add('glow-' + type);
+
+  // remove o brilho suavemente
+  setTimeout(() => {
+    card.classList.add('remove-glow');
+  }, 600);
+}
+
+function triggerSuperlike() {
+  const card = document.querySelector('.card');
+  card.classList.add('superlike-active'); // ativa a faixa azul
+  addGlow('superlike'); // acende o brilho azul
+
+  // remove o efeito azul após 1s (ajuste se quiser mais tempo)
+  setTimeout(() => {
+    card.classList.remove('superlike-active');
+  }, 1000);
+}
+
+/* Conecta aos botões reais do seu HTML (.tinder-btn) */
+document.getElementById('btnX')?.addEventListener('click', () => addGlow('nope'));
+document.getElementById('btnHeart')?.addEventListener('click', () => addGlow('like'));
+document.getElementById('btnReverse')?.addEventListener('click', () => addGlow('reverse'));
+document.getElementById('btnStar')?.addEventListener('click', triggerSuperlike);
+
 /* ===== LÓGICA DA TELA DE CHAT (cole antes do bloco de login) ===== */
 
 /* EDITE AQUI para trocar as mensagens que você quer enviar */
